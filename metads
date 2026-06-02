@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardume · Meta Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg-0:#040912;--bg-1:#071229;--surface:rgba(13,29,58,0.55);--surface-2:rgba(18,38,74,0.7);
+  --line:rgba(74,140,210,0.18);--line-strong:rgba(94,180,255,0.35);
+  --ink:#e9f2ff;--ink-mut:#8ba6cc;--ink-dim:#5e779b;
+  --aqua:#22e3e6;--green:#34e6b0;--coral:#ff6182;--gold:#f5c451;
+  --glow:0 8px 40px -12px rgba(20,120,200,0.45);--radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Manrope',sans-serif;background:var(--bg-0);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+#bgcanvas{position:fixed;inset:0;z-index:0;}
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+   radial-gradient(900px 600px at 12% -5%, rgba(18,86,160,0.35), transparent 60%),
+   radial-gradient(800px 700px at 95% 8%, rgba(14,120,150,0.22), transparent 55%),
+   radial-gradient(1000px 800px at 50% 120%, rgba(10,40,90,0.5), transparent 60%),
+   linear-gradient(180deg,#040912 0%,#061226 55%,#040a16 100%);}
+.app{position:relative;z-index:2;max-width:1340px;margin:0 auto;padding:26px 26px 80px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:26px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:14px;}
+.logo{width:46px;height:46px;border-radius:14px;flex:none;background:linear-gradient(150deg,#0c3358,#08213f);border:1px solid var(--line-strong);display:grid;place-items:center;box-shadow:inset 0 0 22px rgba(34,227,230,0.25),0 6px 24px -8px rgba(34,227,230,0.4);}
+.logo svg{width:26px;height:26px}
+.brand h1{font-family:'Sora';font-weight:700;font-size:1.32rem;letter-spacing:.3px;line-height:1;}
+.brand h1 b{background:linear-gradient(90deg,#7af6f8,#22e3e6 55%,#2aa6ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;}
+.brand p{font-size:.74rem;color:var(--ink-dim);letter-spacing:2.5px;text-transform:uppercase;margin-top:5px;}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.tabs{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px;gap:4px;backdrop-filter:blur(14px);}
+.tab{font-family:'Sora';font-weight:600;font-size:.86rem;color:var(--ink-mut);padding:9px 20px;border-radius:10px;cursor:pointer;border:none;background:none;transition:.25s;}
+.tab.active{color:#04101f;background:linear-gradient(135deg,#37e8ec,#19b9d8);box-shadow:0 6px 18px -6px rgba(34,227,230,0.6);}
+.tab:not(.active):hover{color:var(--ink);background:rgba(60,130,200,0.12);}
+.btn{font-family:'Sora';font-weight:600;font-size:.82rem;border-radius:11px;padding:10px 16px;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink);transition:.2s;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(10px);}
+.btn:hover{border-color:var(--aqua);box-shadow:0 0 0 1px rgba(34,227,230,.3);transform:translateY(-1px);}
+.btn-primary{background:linear-gradient(135deg,#37e8ec,#1b9fd6);color:#04121f;border:none;box-shadow:0 8px 22px -8px rgba(34,227,230,.7);}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ink-mut);}
+.btn-sm{padding:7px 11px;font-size:.76rem;border-radius:9px;}
+.btn-danger:hover{border-color:var(--coral);box-shadow:0 0 0 1px rgba(255,97,130,.35);color:#ffb9c7;}
+.icon-btn{width:38px;height:38px;display:grid;place-items:center;padding:0;}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(16px);box-shadow:var(--glow);}
+.section-title{font-family:'Sora';font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:10px;}
+.section-title .dot{width:9px;height:9px;border-radius:50%;background:var(--aqua);box-shadow:0 0 12px var(--aqua);}
+.filterbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:18px 20px;margin-bottom:18px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
+.field input,.field select{font-family:'Manrope';font-size:.86rem;background:rgba(6,16,34,0.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;min-width:140px;outline:none;transition:.2s;}
+.field input:focus,.field select:focus{border-color:var(--aqua);box-shadow:0 0 0 3px rgba(34,227,230,.13);}
+input[type=date]{color-scheme:dark;}
+.ms{position:relative;}
+.ms-toggle{cursor:pointer;min-width:200px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(6,16,34,.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;font-size:.86rem;}
+.ms-toggle .cnt{background:rgba(34,227,230,.15);color:var(--aqua);font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+.ms-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:260px;max-height:300px;overflow:auto;background:#08172f;border:1px solid var(--line-strong);border-radius:12px;padding:8px;box-shadow:0 20px 50px -12px rgba(0,0,0,.7);display:none;}
+.ms-pop.open{display:block;}
+.ms-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--ink-mut);}
+.ms-item:hover{background:rgba(60,130,200,.12);color:var(--ink);}
+.ms-item input{accent-color:var(--aqua);width:16px;height:16px;}
+.ms-head{display:flex;justify-content:space-between;padding:4px 8px 8px;border-bottom:1px solid var(--line);margin-bottom:6px;}
+.ms-head button{background:none;border:none;color:var(--aqua);font-size:.74rem;cursor:pointer;font-weight:600;}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:14px;}
+.kpi{padding:18px;position:relative;overflow:hidden;}
+.kpi .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;margin-bottom:14px;}
+.kpi .ico svg{width:20px;height:20px}
+.kpi .lab{font-size:.7rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
+.kpi .val{font-family:'JetBrains Mono';font-weight:700;font-size:1.4rem;margin-top:5px;letter-spacing:-.5px;}
+.kpi::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(34,227,230,.10),transparent 70%);}
+.sub-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px;}
+.skpi{padding:14px 16px;}
+.skpi .lab{font-size:.64rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
+.skpi .val{font-family:'JetBrains Mono';font-weight:600;font-size:1.02rem;margin-top:4px;}
+.pos{color:var(--green)!important}.neg{color:var(--coral)!important}
+.note{font-size:.76rem;color:var(--ink-dim);background:rgba(34,227,230,.06);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:18px;line-height:1.5;}
+.note b{color:var(--aqua);}
+.group-toggle{display:inline-flex;background:rgba(6,16,34,.6);border:1px solid var(--line);border-radius:10px;padding:4px;gap:3px;}
+.group-toggle button{font-family:'Sora';font-size:.78rem;font-weight:600;color:var(--ink-mut);border:none;background:none;padding:7px 14px;border-radius:7px;cursor:pointer;}
+.group-toggle button.on{background:rgba(34,227,230,.16);color:var(--aqua);}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.84rem;}
+th{font-family:'Sora';text-align:right;font-weight:600;font-size:.66rem;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-dim);padding:14px 11px;border-bottom:1px solid var(--line);white-space:nowrap;}
+th:first-child,td:first-child{text-align:left;padding-left:22px;}
+th:last-child,td:last-child{padding-right:22px;}
+td{text-align:right;padding:13px 11px;border-bottom:1px solid rgba(74,140,210,.08);font-family:'JetBrains Mono';font-weight:500;white-space:nowrap;}
+tbody tr.clickable{cursor:pointer;}
+tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
+.name-cell{font-family:'Manrope';font-weight:600;color:var(--ink);}
+.name-cell .meta{display:block;font-size:.7rem;color:var(--ink-dim);font-family:'JetBrains Mono';font-weight:400;margin-top:3px;}
+.row-total{background:rgba(34,227,230,.05);}
+.row-total td{font-weight:700;color:var(--ink);border-top:1px solid var(--line-strong);}
+.chip{display:inline-block;font-family:'Sora';font-size:.66rem;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(60,130,200,.16);color:var(--ink-mut);}
+.roi-badge{font-family:'JetBrains Mono';font-weight:700;padding:3px 9px;border-radius:8px;display:inline-block;}
+.crumbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;font-family:'Sora';font-size:.86rem;}
+.crumbs a{color:var(--ink-mut);cursor:pointer;font-weight:600;transition:.2s;}
+.crumbs a:hover{color:var(--aqua);}
+.crumbs .sep{color:var(--ink-dim);}.crumbs .cur{color:var(--aqua);font-weight:700;}
+.tree-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;}
+.tcard{padding:20px;position:relative;cursor:pointer;transition:.22s;}
+.tcard:hover{transform:translateY(-3px);border-color:var(--line-strong);box-shadow:0 14px 40px -16px rgba(34,227,230,.4);}
+.tcard .tc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px;}
+.tcard h3{font-family:'Sora';font-size:1.05rem;font-weight:700;}
+.tcard .tc-sub{font-size:.74rem;color:var(--ink-dim);margin-top:3px;font-family:'JetBrains Mono';}
+.tcard .tc-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.tc-stat{background:rgba(6,16,34,.5);border:1px solid var(--line);border-radius:10px;padding:9px 11px;}
+.tc-stat .l{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
+.tc-stat .v{font-family:'JetBrains Mono';font-weight:600;font-size:.92rem;margin-top:3px;}
+.tc-actions{display:flex;gap:6px;}
+.mini{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(6,16,34,.6);border:1px solid var(--line);cursor:pointer;transition:.2s;}
+.mini svg{width:15px;height:15px;color:var(--ink-mut);}
+.mini:hover{border-color:var(--aqua);}.mini:hover svg{color:var(--aqua);}
+.mini.del:hover{border-color:var(--coral);}.mini.del:hover svg{color:var(--coral);}
+.add-card{border:1.5px dashed var(--line-strong);background:transparent;display:grid;place-items:center;min-height:150px;cursor:pointer;transition:.2s;color:var(--ink-mut);}
+.add-card:hover{border-color:var(--aqua);color:var(--aqua);background:rgba(34,227,230,.04);}
+.add-card .plus{font-size:2rem;font-weight:300;line-height:1;}
+.add-card span{font-family:'Sora';font-weight:600;font-size:.86rem;margin-top:8px;display:block;}
+.empty{text-align:center;padding:60px 20px;color:var(--ink-dim);}
+.empty .big{font-family:'Sora';font-size:1.15rem;color:var(--ink-mut);font-weight:700;margin-bottom:8px;}
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(2,7,16,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:50px 18px;overflow:auto;}
+.overlay.open{display:flex;}
+.modal{width:100%;max-width:600px;background:linear-gradient(180deg,#0a1c39,#081123);border:1px solid var(--line-strong);border-radius:22px;padding:28px;box-shadow:0 40px 90px -20px rgba(0,0,0,.8);animation:pop .28s cubic-bezier(.2,.9,.3,1.2);}
+.modal.wide{max-width:760px;}
+@keyframes pop{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.modal-head h2{font-family:'Sora';font-weight:700;font-size:1.25rem;}
+.modal-head h2 .accent{color:var(--aqua);}
+.close-x{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:none;color:var(--ink-mut);cursor:pointer;font-size:1.1rem;display:grid;place-items:center;}
+.close-x:hover{border-color:var(--coral);color:var(--coral);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-grid .full{grid-column:1/-1;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg label{font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
+.fg input,.fg select{font-family:'Manrope';font-size:.92rem;background:rgba(6,16,34,.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 13px;outline:none;transition:.2s;}
+.fg input:focus,.fg select:focus{border-color:var(--aqua);box-shadow:0 0 0 3px rgba(34,227,230,.13);}
+.fg .hint{font-size:.66rem;color:var(--ink-dim);}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.form-section{font-family:'Sora';font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--aqua);font-weight:700;grid-column:1/-1;margin-top:6px;padding-top:14px;border-top:1px solid var(--line);}
+.form-section:first-child{margin-top:0;padding-top:0;border-top:none;}
+.map-row{display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:center;padding:12px 14px;background:rgba(6,16,34,.5);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;}
+.map-row .mp-name{font-weight:600;font-size:.9rem;}
+.map-row .mp-meta{font-family:'JetBrains Mono';font-size:.72rem;color:var(--ink-dim);margin-top:3px;}
+.map-row select{font-family:'Manrope';font-size:.84rem;background:rgba(6,16,34,.8);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:9px;}
+.dz{border:1.5px dashed var(--line-strong);border-radius:14px;padding:26px;text-align:center;cursor:pointer;transition:.2s;color:var(--ink-mut);}
+.dz:hover{border-color:var(--aqua);color:var(--aqua);background:rgba(34,227,230,.04);}
+.dz b{color:var(--ink);font-family:'Sora';}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0a1f3d;border:1px solid var(--line-strong);color:var(--ink);padding:13px 22px;border-radius:12px;font-family:'Sora';font-weight:600;font-size:.86rem;z-index:200;opacity:0;transition:.3s;box-shadow:0 16px 40px -12px rgba(0,0,0,.6);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:var(--green);} .toast .i{color:var(--green);} .toast.err{border-color:var(--coral)}
+.hidden{display:none!important;}
+::-webkit-scrollbar{height:9px;width:9px}::-webkit-scrollbar-thumb{background:rgba(60,130,200,.35);border-radius:10px}::-webkit-scrollbar-track{background:transparent}
+@media(max-width:1100px){.kpi-grid,.sub-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpi-grid,.sub-kpis{grid-template-columns:repeat(2,1fr)}.form-grid,.map-row{grid-template-columns:1fr}.app{padding:18px 14px 70px}}
+</style>
+</head>
+<body>
+<canvas id="bgcanvas"></canvas>
+<div class="bg-mesh"></div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12c3-5 8-5 11-5 4 0 7 2 9 5-2 3-5 5-9 5-3 0-8 0-11-5z" stroke="#37e8ec" stroke-width="1.4" stroke-linejoin="round"/><circle cx="15.5" cy="10.5" r="1.1" fill="#37e8ec"/><path d="M2 12c1.5-1 2.8-1.4 4-1.4M2 12c1.5 1 2.8 1.4 4 1.4" stroke="#37e8ec" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego</p></div>
+    </div>
+    <div class="top-actions">
+      <div class="tabs">
+        <button class="tab active" data-tab="painel" onclick="setTab('painel')">Painel</button>
+        <button class="tab" data-tab="estrutura" onclick="setTab('estrutura')">Estrutura</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openImportMeta()">⬆ Meta</button>
+      <button class="btn btn-ghost btn-sm" onclick="openImportHotmart()">⬆ Hotmart</button>
+      <button class="btn icon-btn btn-ghost" title="Ajustes" onclick="openSettings()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg></button>
+    </div>
+  </div>
+
+  <div id="view-painel">
+    <div class="panel filterbar">
+      <div class="field"><label>De</label><input type="date" id="f-from" onchange="renderPainel()"></div>
+      <div class="field"><label>Até</label><input type="date" id="f-to" onchange="renderPainel()"></div>
+      <div class="field"><label>Produtos</label><div class="ms" id="ms-prod"></div></div>
+      <div class="field" style="margin-left:auto"><label>Detalhar por</label>
+        <div class="group-toggle" id="grp">
+          <button data-g="produto" class="on" onclick="setGroup('produto')">Produto</button>
+          <button data-g="campanha" onclick="setGroup('campanha')">Campanha</button>
+          <button data-g="anuncio" onclick="setGroup('anuncio')">Anúncio</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Limpar</button>
+    </div>
+    <div class="kpi-grid" id="kpis"></div>
+    <div class="sub-kpis" id="subkpis"></div>
+    <div id="grp-note"></div>
+    <div class="panel" style="padding:22px 0 8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 22px 16px;">
+        <div class="section-title"><span class="dot"></span> <span id="grp-title">Por produto</span></div>
+        <div class="chip" id="period-label"></div>
+      </div>
+      <div class="tbl-wrap"><table id="painel-tbl"></table></div>
+    </div>
+  </div>
+
+  <div id="view-estrutura" class="hidden">
+    <div class="crumbs" id="crumbs"></div>
+    <div id="estrutura-body"></div>
+  </div>
+</div>
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='cardume_v2';
+let DB=load();
+function load(){try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r));}catch(e){}return{cotacaoPadrao:5,produtos:[]};}
+function migrate(d){d.produtos=d.produtos||[];d.produtos.forEach(p=>{p.hotmartNomes=p.hotmartNomes||[];p.receita=p.receita||{};p.campanhas=p.campanhas||[];p.campanhas.forEach(c=>{c.anuncios=c.anuncios||[];});});return d;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){toast('Não consegui salvar',false);}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ---------- format ---------- */
+const fBRL=v=>isFinite(v)?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'R$ 0,00';
+const fPct=v=>isFinite(v)?(v*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—';
+const fRoas=v=>isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'x':'—';
+const fNum=v=>(v||0).toLocaleString('pt-BR');
+const fDate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y;};
+
+/* ---------- calc ---------- */
+// creative entry = cost+funnel (Meta). campaign/produto revenue comes from produto.receita (Hotmart)
+function calcEntry(e){
+  const inv=+e.investimento||0, cl=+e.cliques||0, pv=+e.pageview||0, ck=+e.checkout||0;
+  return {investimento:inv,cliques:cl,pageview:pv,checkout:ck,metaSales:+e.metaSales||0,
+    cpc:cl?inv/cl:0, connect:cl?pv/cl:0, taxaCheckout:pv?ck/pv:0};
+}
+function aggSpend(entries){
+  const s={investimento:0,cliques:0,pageview:0,checkout:0,metaSales:0};
+  entries.forEach(e=>{const c=calcEntry(e);s.investimento+=c.investimento;s.cliques+=c.cliques;s.pageview+=c.pageview;s.checkout+=c.checkout;s.metaSales+=c.metaSales;});
+  s.cpc=s.cliques?s.investimento/s.cliques:0; s.connect=s.cliques?s.pageview/s.cliques:0; s.taxaCheckout=s.pageview?s.checkout/s.pageview:0;
+  return s;
+}
+function aggReceita(prod,from,to){
+  let retorno=0,pp=0,ob=0;
+  Object.entries(prod.receita||{}).forEach(([d,v])=>{
+    if(from&&d<from)return; if(to&&d>to)return;
+    retorno+=+v.retorno||0; pp+=+v.pp||0; ob+=+v.ob||0;
+  });
+  return {retorno,pp,ob};
+}
+function prodEntries(prod){const out=[];prod.campanhas.forEach(c=>c.anuncios.forEach(a=>a.entradas.forEach(e=>out.push(e))));return out;}
+function prodEntriesFiltered(prod,from,to){return prodEntries(prod).filter(e=>(!from||e.data>=from)&&(!to||e.data<=to));}
+// full product metrics over period
+function prodMetrics(prod,from,to){
+  const sp=aggSpend(prodEntriesFiltered(prod,from,to));
+  const rv=aggReceita(prod,from,to);
+  const lucro=rv.retorno-sp.investimento;
+  return {...sp,...rv,lucro,roi:sp.investimento?rv.retorno/sp.investimento:0,cpa:rv.pp?sp.investimento/rv.pp:0};
+}
+
+/* ---------- state ---------- */
+let TAB='painel',GROUP='produto',SEL_PROD=null,nav={produtoId:null,campanhaId:null,anuncioId:null};
+function setTab(t){TAB=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.getElementById('view-painel').classList.toggle('hidden',t!=='painel');
+  document.getElementById('view-estrutura').classList.toggle('hidden',t!=='estrutura');
+  t==='painel'?renderPainel():renderEstrutura();}
+function setGroup(g){GROUP=g;document.querySelectorAll('#grp button').forEach(b=>b.classList.toggle('on',b.dataset.g===g));renderPainel();}
+function getRange(){return[document.getElementById('f-from').value,document.getElementById('f-to').value];}
+
+/* ---------- multiselect ---------- */
+function buildMS(items,selSet,onChange){
+  const el=document.getElementById('ms-prod');
+  el.innerHTML=`<div class="ms-toggle"><span>${selSet?selSet.size+' selecionado(s)':'Todos'}</span><span class="cnt">${selSet?selSet.size:items.length}</span></div>
+   <div class="ms-pop"><div class="ms-head"><button data-all>Todos</button><button data-none>Nenhum</button></div>
+   ${items.map(i=>`<label class="ms-item"><input type="checkbox" value="${i.id}" ${(!selSet||selSet.has(i.id))?'checked':''}><span>${esc(i.nome)}</span></label>`).join('')||'<div style="padding:10px;color:#5e779b;font-size:.82rem">Nenhum produto</div>'}</div>`;
+  const pop=el.querySelector('.ms-pop');
+  el.querySelector('.ms-toggle').onclick=e=>{e.stopPropagation();document.querySelectorAll('.ms-pop').forEach(p=>{if(p!==pop)p.classList.remove('open')});pop.classList.toggle('open');};
+  pop.querySelectorAll('input').forEach(c=>c.onchange=()=>{const ch=[...pop.querySelectorAll('input:checked')].map(x=>x.value);onChange(ch.length===items.length?null:new Set(ch));});
+  pop.querySelector('[data-all]').onclick=()=>onChange(null);
+  pop.querySelector('[data-none]').onclick=()=>onChange(new Set());
+}
+document.addEventListener('click',()=>document.querySelectorAll('.ms-pop').forEach(p=>p.classList.remove('open')));
+function refreshFilters(){buildMS(DB.produtos,SEL_PROD,s=>{SEL_PROD=s;renderPainel();});}
+
+/* ---------- PAINEL ---------- */
+const KPI=[
+  {k:'investimento',lab:'Total Investido',fmt:fBRL,c:'#37e8ec',ico:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
+  {k:'retorno',lab:'Receita (Hotmart)',fmt:fBRL,c:'#34e6b0',ico:'<path d="M3 17l6-6 4 4 7-7M14 8h6v6"/>'},
+  {k:'lucro',lab:'Lucro',fmt:fBRL,c:'#f5c451',ico:'<rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.4"/>'},
+  {k:'roi',lab:'ROAS',fmt:fRoas,c:'#9b8dff',ico:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>'},
+  {k:'cpc',lab:'CPC',fmt:fBRL,c:'#ff9f5a',ico:'<path d="M5 3l14 8-6 1.5L11 19z"/>'},
+  {k:'cpa',lab:'CPA',fmt:fBRL,c:'#ff6182',ico:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0M17 11l2 2 4-4"/>'}
+];
+const SUB=[
+  {k:'cliques',lab:'Cliques',fmt:fNum},{k:'pp',lab:'Aquisições (Hotmart)',fmt:fNum},
+  {k:'ob',lab:'Order Bumps',fmt:fNum},{k:'connect',lab:'Connect Rate',fmt:fPct},
+  {k:'taxaCheckout',lab:'Taxa Checkout',fmt:fPct},{k:'metaSales',lab:'Vendas marcadas Meta',fmt:fNum}
+];
+function lucroColor(v){return v>0?'pos':v<0?'neg':'';}
+function roasColor(v){return v>1?'pos':v>0&&v<1?'neg':'';}
+// alias para compatibilidade com chamadas de lucro em stats genéricos
+function roiColor(v){return v>0?'pos':v<0?'neg':'';}
+
+function renderPainel(){
+  refreshFilters();
+  const[from,to]=getRange();
+  const prods=DB.produtos.filter(p=>!SEL_PROD||SEL_PROD.has(p.id));
+  // KPIs: revenue from products (whole), spend summed
+  const tot={investimento:0,cliques:0,pageview:0,checkout:0,metaSales:0,retorno:0,pp:0,ob:0};
+  prods.forEach(p=>{const m=prodMetrics(p,from,to);
+    tot.investimento+=m.investimento;tot.cliques+=m.cliques;tot.pageview+=m.pageview;tot.checkout+=m.checkout;tot.metaSales+=m.metaSales;
+    tot.retorno+=m.retorno;tot.pp+=m.pp;tot.ob+=m.ob;});
+  tot.lucro=tot.retorno-tot.investimento;tot.roi=tot.investimento?tot.retorno/tot.investimento:0;
+  tot.cpc=tot.cliques?tot.investimento/tot.cliques:0;tot.cpa=tot.pp?tot.investimento/tot.pp:0;tot.connect=tot.cliques?tot.pageview/tot.cliques:0;tot.taxaCheckout=tot.pageview?tot.checkout/tot.pageview:0;
+
+  document.getElementById('kpis').innerHTML=KPI.map(d=>{let cls=d.k==='lucro'?lucroColor(tot.lucro):d.k==='roi'?roasColor(tot.roi):'';
+    return `<div class="panel kpi"><div class="ico" style="background:${d.c}22;border:1px solid ${d.c}55"><svg viewBox="0 0 24 24" fill="none" stroke="${d.c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${d.ico}</svg></div><div class="lab">${d.lab}</div><div class="val ${cls}">${d.fmt(tot[d.k])}</div></div>`;}).join('');
+  document.getElementById('subkpis').innerHTML=SUB.map(d=>`<div class="panel skpi"><div class="lab">${d.lab}</div><div class="val">${d.fmt(tot[d.k])}</div></div>`).join('');
+
+  document.getElementById('period-label').textContent=(from||to)?`${from?fDate(from):'início'} → ${to?fDate(to):'hoje'}`:'todo o período';
+  document.getElementById('grp-title').textContent=GROUP==='produto'?'Por produto':GROUP==='campanha'?'Por campanha (lado de tráfego)':'Por anúncio (lado de tráfego)';
+
+  const note=document.getElementById('grp-note');
+  note.innerHTML = GROUP==='produto'
+    ? `<div class="note">A <b>receita</b>, as <b>aquisições</b> e os <b>order bumps</b> vêm da Hotmart amarrados ao produto. O investimento e o funil vêm do Meta. O ROI e o CPA são reais.</div>`
+    : `<div class="note">Aqui você vê o lado operacional do tráfego por ${GROUP}: gasto, cliques e funil do Meta, mais as vendas que o <b>Meta marcou</b> (só uma parte do real). A receita fiel fica no nível do <b>produto</b>, porque a Hotmart não separa a venda por campanha ou criativo.</div>`;
+
+  if(GROUP==='produto')renderPainelProduto(prods,from,to);
+  else renderPainelTrafego(prods,from,to);
+}
+
+function renderPainelProduto(prods,from,to){
+  const head=`<thead><tr><th>Produto</th><th>Investido</th><th>Receita</th><th>Lucro</th><th>ROI</th><th>CPC</th><th>CPA</th><th>Cliques</th><th>Aquisições</th><th>OB</th><th>Vendas Meta</th></tr></thead>`;
+  if(!prods.length){document.getElementById('painel-tbl').innerHTML=head+emptyRow(11);return;}
+  const rows=prods.map(p=>({p,m:prodMetrics(p,from,to)})).sort((a,b)=>b.m.lucro-a.m.lucro);
+  let body='<tbody>'+rows.map(({p,m})=>`<tr class="clickable" onclick="goNav('${p.id}',null,null)">
+    <td><div class="name-cell">${esc(p.nome)}<span class="meta">${p.campanhas.length} campanha(s)</span></div></td>
+    <td>${fBRL(m.investimento)}</td><td>${fBRL(m.retorno)}</td><td class="${lucroColor(m.lucro)}">${fBRL(m.lucro)}</td>
+    <td><span class="roi-badge ${roasColor(m.roi)}" style="background:${m.roi>1?'rgba(52,230,176,.13)':m.roi>0?'rgba(255,97,130,.13)':'rgba(60,130,200,.13)'}">${fRoas(m.roi)}</span></td>
+    <td>${fBRL(m.cpc)}</td><td>${fBRL(m.cpa)}</td><td>${fNum(m.cliques)}</td><td>${fNum(m.pp)}</td><td>${fNum(m.ob)}</td><td>${fNum(m.metaSales)}</td></tr>`).join('');
+  const T=rows.reduce((s,{m})=>{for(let k in m)s[k]=(s[k]||0)+(isFinite(m[k])?0:0);return s;},{});
+  const tt={investimento:0,retorno:0,cliques:0,pp:0,ob:0,metaSales:0};rows.forEach(({m})=>{tt.investimento+=m.investimento;tt.retorno+=m.retorno;tt.cliques+=m.cliques;tt.pp+=m.pp;tt.ob+=m.ob;tt.metaSales+=m.metaSales;});
+  const tl=tt.retorno-tt.investimento;
+  body+=`<tr class="row-total"><td>Total · ${rows.length} produto(s)</td><td>${fBRL(tt.investimento)}</td><td>${fBRL(tt.retorno)}</td>
+    <td class="${lucroColor(tl)}">${fBRL(tl)}</td><td class="${roasColor(tt.investimento?tt.retorno/tt.investimento:0)}">${fRoas(tt.investimento?tt.retorno/tt.investimento:0)}</td>
+    <td>${fBRL(tt.cliques?tt.investimento/tt.cliques:0)}</td><td>${fBRL(tt.pp?tt.investimento/tt.pp:0)}</td><td>${fNum(tt.cliques)}</td><td>${fNum(tt.pp)}</td><td>${fNum(tt.ob)}</td><td>${fNum(tt.metaSales)}</td></tr></tbody>`;
+  document.getElementById('painel-tbl').innerHTML=head+body;
+}
+
+function renderPainelTrafego(prods,from,to){
+  const isCamp=GROUP==='campanha';
+  const head=`<thead><tr><th>${isCamp?'Campanha':'Anúncio'}</th><th>Investido</th><th>CPC</th><th>Cliques</th><th>PageView</th><th>Connect</th><th>Checkout</th><th>Tx Checkout</th><th>Vendas Meta</th></tr></thead>`;
+  const groups=[];
+  prods.forEach(p=>p.campanhas.forEach(c=>{
+    if(isCamp){groups.push({label:c.nome,sub:p.nome,nav:[p.id,c.id,null],entries:c.anuncios.flatMap(a=>a.entradas)});}
+    else c.anuncios.forEach(a=>groups.push({label:a.nome,sub:p.nome+' › '+c.nome,nav:[p.id,c.id,a.id],entries:a.entradas}));
+  }));
+  groups.forEach(g=>g.entries=g.entries.filter(e=>(!from||e.data>=from)&&(!to||e.data<=to)));
+  const filt=groups.filter(g=>g.entries.length);
+  if(!filt.length){document.getElementById('painel-tbl').innerHTML=head+emptyRow(9);return;}
+  const rows=filt.map(g=>({g,a:aggSpend(g.entries)})).sort((x,y)=>y.a.investimento-x.a.investimento);
+  let body='<tbody>'+rows.map(({g,a})=>`<tr class="clickable" onclick="goNav('${g.nav[0]}','${g.nav[1]}',${g.nav[2]?`'${g.nav[2]}'`:'null'})">
+    <td><div class="name-cell">${esc(g.label)}<span class="meta">${esc(g.sub)}</span></div></td>
+    <td>${fBRL(a.investimento)}</td><td>${fBRL(a.cpc)}</td><td>${fNum(a.cliques)}</td><td>${fNum(a.pageview)}</td><td>${fPct(a.connect)}</td><td>${fNum(a.checkout)}</td><td>${fPct(a.taxaCheckout)}</td><td>${fNum(a.metaSales)}</td></tr>`).join('');
+  const T=aggSpend(filt.flatMap(g=>g.entries));
+  body+=`<tr class="row-total"><td>Total · ${rows.length}</td><td>${fBRL(T.investimento)}</td><td>${fBRL(T.cpc)}</td><td>${fNum(T.cliques)}</td><td>${fNum(T.pageview)}</td><td>${fPct(T.connect)}</td><td>${fNum(T.checkout)}</td><td>${fPct(T.taxaCheckout)}</td><td>${fNum(T.metaSales)}</td></tr></tbody>`;
+  document.getElementById('painel-tbl').innerHTML=head+body;
+}
+function emptyRow(cols){return `<tbody><tr><td colspan="${cols}"><div class="empty" style="padding:46px 0"><div class="big">Nenhum dado no filtro atual</div>Importe planilhas do Meta e da Hotmart ou ajuste o período.</div></td></tr></tbody>`;}
+function goNav(pid,cid,aid){TAB='estrutura';nav={produtoId:pid,campanhaId:cid,anuncioId:aid};
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab==='estrutura'));
+  document.getElementById('view-painel').classList.add('hidden');document.getElementById('view-estrutura').classList.remove('hidden');
+  renderEstrutura();window.scrollTo({top:0,behavior:'smooth'});}
+function clearFilters(){document.getElementById('f-from').value='';document.getElementById('f-to').value='';SEL_PROD=null;renderPainel();}
+
+/* ---------- ESTRUTURA ---------- */
+const findProd=id=>DB.produtos.find(p=>p.id===id);
+const findCamp=(p,id)=>p?.campanhas.find(c=>c.id===id);
+const findAnun=(c,id)=>c?.anuncios.find(a=>a.id===id);
+function renderEstrutura(){
+  const cr=document.getElementById('crumbs'),body=document.getElementById('estrutura-body');
+  const p=findProd(nav.produtoId),c=findCamp(p,nav.campanhaId),a=findAnun(c,nav.anuncioId);
+  let h=`<a onclick="goLevel('root')">Produtos</a>`;
+  if(p)h+=`<span class="sep">›</span>`+(c?`<a onclick="goLevel('prod')">${esc(p.nome)}</a>`:`<span class="cur">${esc(p.nome)}</span>`);
+  if(c)h+=`<span class="sep">›</span>`+(a?`<a onclick="goLevel('camp')">${esc(c.nome)}</a>`:`<span class="cur">${esc(c.nome)}</span>`);
+  if(a)h+=`<span class="sep">›</span><span class="cur">${esc(a.nome)}</span>`;
+  cr.innerHTML=h;
+  body.innerHTML = a?renderAnuncio(p,c,a) : c?renderCampanha(p,c) : p?renderProduto(p) : renderRoot();
+}
+function goLevel(l){if(l==='root')nav={produtoId:null,campanhaId:null,anuncioId:null};
+  else if(l==='prod')nav={produtoId:nav.produtoId,campanhaId:null,anuncioId:null};
+  else if(l==='camp')nav={produtoId:nav.produtoId,campanhaId:nav.campanhaId,anuncioId:null};renderEstrutura();}
+const stat=(l,v,cls)=>`<div class="tc-stat"><div class="l">${l}</div><div class="v ${cls||''}">${v}</div></div>`;
+
+function renderRoot(){
+  let cards=DB.produtos.map(p=>{const m=prodMetrics(p,null,null);
+    return `<div class="panel tcard" onclick="nav.produtoId='${p.id}';renderEstrutura()">
+      <div class="tc-top"><div><h3>${esc(p.nome)}</h3><div class="tc-sub">${p.campanhas.length} campanha(s) · ${Object.keys(p.receita||{}).length} dia(s) de venda</div></div>
+      <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editProduto('${p.id}')`)}${delBtn(`delProduto('${p.id}')`)}</div></div>
+      <div class="tc-stats">${stat('Investido',fBRL(m.investimento))}${stat('Receita',fBRL(m.retorno))}${stat('Lucro',fBRL(m.lucro),lucroColor(m.lucro))}${stat('ROAS',fRoas(m.roi),roasColor(m.roi))}</div></div>`;}).join('');
+  cards+=`<div class="panel tcard add-card" onclick="addProduto()"><div style="text-align:center"><div class="plus">+</div><span>Novo Produto</span></div></div>`;
+  const imp=`<div class="panel" style="padding:18px 20px;margin-bottom:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+     <div class="section-title" style="margin-right:auto"><span class="dot"></span> Importar planilhas</div>
+     <button class="btn" onclick="openImportMeta()">⬆ Relatório do Meta (.xlsx)</button>
+     <button class="btn" onclick="openImportHotmart()">⬆ Vendas da Hotmart (.xls)</button></div>`;
+  return imp+`<div class="tree-grid">${cards}</div>`;
+}
+function renderProduto(p){
+  const m=prodMetrics(p,null,null);
+  const summary=`<div class="panel" style="padding:20px 22px;margin-bottom:18px">
+     <div class="section-title" style="margin-bottom:16px"><span class="dot"></span> Consolidado do produto</div>
+     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
+       ${stat('Investido (Meta)',fBRL(m.investimento))}${stat('Receita (Hotmart)',fBRL(m.retorno))}${stat('Lucro',fBRL(m.lucro),lucroColor(m.lucro))}${stat('ROAS',fRoas(m.roi),roasColor(m.roi))}${stat('CPA',fBRL(m.cpa))}${stat('Aquisições',fNum(m.pp))}${stat('Order Bumps',fNum(m.ob))}${stat('Vendas Meta',fNum(m.metaSales))}</div>
+     <div class="note" style="margin:14px 0 0">Vinculado na Hotmart a: ${(p.hotmartNomes&&p.hotmartNomes.length)?p.hotmartNomes.map(esc).join(', '):'<i>nenhum produto vinculado ainda. Importe a Hotmart para vincular.</i>'}</div></div>`;
+  // receita por dia
+  const dias=Object.keys(p.receita||{}).sort();
+  let rec=`<div class="panel" style="padding:6px 0;margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;padding:16px 22px 8px"><div class="section-title"><span class="dot"></span> Receita por dia (Hotmart)</div><button class="btn btn-sm btn-ghost" onclick="addReceita('${p.id}')">+ Dia manual</button></div><div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Receita</th><th>Aquisições</th><th>Order Bumps</th><th></th></tr></thead><tbody>`;
+  if(!dias.length)rec+=`<tr><td colspan="5"><div class="empty" style="padding:30px 0">Sem vendas importadas. Use <b style="color:#37e8ec">Importar Hotmart</b>.</div></td></tr>`;
+  else{dias.forEach(d=>{const v=p.receita[d];rec+=`<tr><td style="text-align:left;padding-left:22px">${fDate(d)}</td><td>${fBRL(v.retorno)}</td><td>${fNum(v.pp)}</td><td>${fNum(v.ob)}</td>
+     <td style="padding-right:22px">${editBtn(`editReceita('${p.id}','${d}')`,true)} ${delBtn(`delReceita('${p.id}','${d}')`,true)}</td></tr>`;});
+   const rv=aggReceita(p,null,null);rec+=`<tr class="row-total"><td>Total</td><td>${fBRL(rv.retorno)}</td><td>${fNum(rv.pp)}</td><td>${fNum(rv.ob)}</td><td></td></tr>`;}
+  rec+=`</tbody></table></div></div>`;
+  let cards=p.campanhas.map(c=>{const a=aggSpend(prodEntries({campanhas:[c]}));
+    return `<div class="panel tcard" onclick="nav.campanhaId='${c.id}';renderEstrutura()">
+     <div class="tc-top"><div><h3>${esc(c.nome)}</h3><div class="tc-sub">${c.anuncios.length} anúncio(s)</div></div>
+     <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editCampanha('${p.id}','${c.id}')`)}${delBtn(`delCampanha('${p.id}','${c.id}')`)}</div></div>
+     <div class="tc-stats">${stat('Investido',fBRL(a.investimento))}${stat('Cliques',fNum(a.cliques))}${stat('CPC',fBRL(a.cpc))}${stat('Vendas Meta',fNum(a.metaSales))}</div></div>`;}).join('');
+  cards+=`<div class="panel tcard add-card" onclick="addCampanha('${p.id}')"><div style="text-align:center"><div class="plus">+</div><span>Nova Campanha</span></div></div>`;
+  return summary+rec+`<div class="section-title" style="margin-bottom:14px"><span class="dot"></span> Campanhas</div><div class="tree-grid">${cards}</div>`;
+}
+function renderCampanha(p,c){
+  const a=aggSpend(prodEntries({campanhas:[c]}));
+  const summary=`<div class="panel" style="padding:20px 22px;margin-bottom:18px"><div class="section-title" style="margin-bottom:16px"><span class="dot"></span> Tráfego da campanha</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">${stat('Investido',fBRL(a.investimento))}${stat('CPC',fBRL(a.cpc))}${stat('Cliques',fNum(a.cliques))}${stat('PageView',fNum(a.pageview))}${stat('Connect',fPct(a.connect))}${stat('Checkout',fNum(a.checkout))}${stat('Tx Checkout',fPct(a.taxaCheckout))}${stat('Vendas Meta',fNum(a.metaSales))}</div></div>`;
+  let cards=c.anuncios.map(an=>{const aa=aggSpend(an.entradas);
+    return `<div class="panel tcard" onclick="nav.anuncioId='${an.id}';renderEstrutura()">
+     <div class="tc-top"><div><h3>${esc(an.nome)}</h3><div class="tc-sub">${an.entradas.length} dia(s)</div></div>
+     <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editAnuncio('${p.id}','${c.id}','${an.id}')`)}${delBtn(`delAnuncio('${p.id}','${c.id}','${an.id}')`)}</div></div>
+     <div class="tc-stats">${stat('Investido',fBRL(aa.investimento))}${stat('CPC',fBRL(aa.cpc))}${stat('Cliques',fNum(aa.cliques))}${stat('Vendas Meta',fNum(aa.metaSales))}</div></div>`;}).join('');
+  cards+=`<div class="panel tcard add-card" onclick="addAnuncio('${p.id}','${c.id}')"><div style="text-align:center"><div class="plus">+</div><span>Novo Anúncio</span></div></div>`;
+  return summary+`<div class="tree-grid">${cards}</div>`;
+}
+function renderAnuncio(p,c,a){
+  const g=aggSpend(a.entradas);
+  const head=`<thead><tr><th>Data</th><th>Investido</th><th>CPC</th><th>Cliques</th><th>PageView</th><th>Connect</th><th>Checkout</th><th>Tx Checkout</th><th>Vendas Meta</th><th></th></tr></thead>`;
+  let rows=a.entradas.slice().sort((x,y)=>(x.data||'').localeCompare(y.data||'')).map(e=>{const cc=calcEntry(e);
+    return `<tr><td style="text-align:left;padding-left:22px">${fDate(e.data)}</td><td>${fBRL(cc.investimento)}</td><td>${fBRL(cc.cpc)}</td><td>${fNum(cc.cliques)}</td><td>${fNum(cc.pageview)}</td><td>${fPct(cc.connect)}</td><td>${fNum(cc.checkout)}</td><td>${fPct(cc.taxaCheckout)}</td><td>${fNum(cc.metaSales)}</td>
+     <td style="padding-right:22px">${editBtn(`editEntrada('${p.id}','${c.id}','${a.id}','${e.id}')`,true)} ${delBtn(`delEntrada('${p.id}','${c.id}','${a.id}','${e.id}')`,true)}</td></tr>`;}).join('');
+  if(!a.entradas.length)rows=`<tr><td colspan="10"><div class="empty" style="padding:36px 0"><div class="big">Sem lançamentos</div>Adicione manualmente ou importe o relatório do Meta.</div></td></tr>`;
+  const tot=a.entradas.length?`<tr class="row-total"><td style="text-align:left;padding-left:22px">Total / Médias</td><td>${fBRL(g.investimento)}</td><td>${fBRL(g.cpc)}</td><td>${fNum(g.cliques)}</td><td>${fNum(g.pageview)}</td><td>${fPct(g.connect)}</td><td>${fNum(g.checkout)}</td><td>${fPct(g.taxaCheckout)}</td><td>${fNum(g.metaSales)}</td><td></td></tr>`:'';
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><div class="section-title"><span class="dot"></span> Dias · ${esc(a.nome)}</div><button class="btn btn-primary btn-sm" onclick="addEntrada('${p.id}','${c.id}','${a.id}')">+ Novo dia</button></div>
+    <div class="note">Este nível mostra só o lado de tráfego do Meta (gasto, cliques, funil) e as vendas que o Meta marcou. A receita real é da Hotmart, vinculada ao produto.</div>
+    <div class="panel" style="padding:6px 0"><div class="tbl-wrap"><table>${head}<tbody>${rows}${tot}</tbody></table></div></div>`;
+}
+const editBtn=(fn,inline)=>`<span class="mini" ${inline?'style="display:inline-grid"':''} onclick="${fn}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2 2 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>`;
+const delBtn=(fn,inline)=>`<span class="mini del" ${inline?'style="display:inline-grid;margin-left:4px"':''} onclick="${fn}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></span>`;
+
+/* ---------- modals base ---------- */
+const ov=document.getElementById('overlay'),md=document.getElementById('modal');
+function closeModal(){ov.classList.remove('open');md.innerHTML='';md.classList.remove('wide');}
+ov.onclick=e=>{if(e.target===ov)closeModal();};
+function openModal(html,wide){md.innerHTML=html;md.classList.toggle('wide',!!wide);ov.classList.add('open');const f=md.querySelector('input,select');if(f)setTimeout(()=>f.focus(),60);}
+function nameModal(title,cur,onSave){
+  openModal(`<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="fg full"><label>Nome</label><input id="m-name" value="${esc(cur||'')}" placeholder="Digite o nome"></div>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" id="m-save">Salvar</button></div>`);
+  const i=md.querySelector('#m-name');const go=()=>{const v=i.value.trim();if(!v)return i.focus();onSave(v);closeModal();};
+  md.querySelector('#m-save').onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go();};
+}
+function confirmDel(msg,onYes){openModal(`<div class="modal-head"><h2>Confirmar</h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <p style="color:var(--ink-mut);font-size:.95rem;line-height:1.55">${msg}</p>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-danger" id="c-yes">Excluir</button></div>`);
+  md.querySelector('#c-yes').onclick=()=>{onYes();closeModal();};}
+
+/* CRUD produto/campanha/anuncio */
+function addProduto(){nameModal('Novo <span class="accent">Produto</span>','',n=>{DB.produtos.push({id:uid(),nome:n,hotmartNomes:[],campanhas:[],receita:{}});save();toast('Produto criado');renderEstrutura();});}
+function editProduto(id){const p=findProd(id);nameModal('Renomear produto',p.nome,n=>{p.nome=n;save();renderEstrutura();});}
+function delProduto(id){confirmDel('Excluir este produto, suas campanhas e a receita importada?',()=>{DB.produtos=DB.produtos.filter(p=>p.id!==id);save();toast('Produto excluído');renderEstrutura();});}
+function addCampanha(pid){const p=findProd(pid);nameModal('Nova <span class="accent">Campanha</span>',p.nome,n=>{p.campanhas.push({id:uid(),nome:n,anuncios:[]});save();toast('Campanha criada');renderEstrutura();});}
+function editCampanha(pid,cid){const c=findCamp(findProd(pid),cid);nameModal('Renomear campanha',c.nome,n=>{c.nome=n;save();renderEstrutura();});}
+function delCampanha(pid,cid){confirmDel('Excluir esta campanha e seus anúncios?',()=>{const p=findProd(pid);p.campanhas=p.campanhas.filter(c=>c.id!==cid);save();toast('Campanha excluída');renderEstrutura();});}
+function addAnuncio(pid,cid){const c=findCamp(findProd(pid),cid);nameModal('Novo <span class="accent">Anúncio</span>','',n=>{c.anuncios.push({id:uid(),nome:n,entradas:[]});save();toast('Anúncio criado');renderEstrutura();});}
+function editAnuncio(pid,cid,aid){const a=findAnun(findCamp(findProd(pid),cid),aid);nameModal('Renomear anúncio',a.nome,n=>{a.nome=n;save();renderEstrutura();});}
+function delAnuncio(pid,cid,aid){confirmDel('Excluir este anúncio e seus dias?',()=>{const c=findCamp(findProd(pid),cid);c.anuncios=c.anuncios.filter(a=>a.id!==aid);save();toast('Anúncio excluído');renderEstrutura();});}
+
+function entradaModal(title,e,onSave){
+  const v=k=>e&&e[k]!=null?e[k]:'';
+  openModal(`<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="form-grid">
+    <div class="fg"><label>Data</label><input type="date" id="i-data" value="${v('data')||new Date().toISOString().slice(0,10)}"></div>
+    <div class="fg"><label>Investido (R$)</label><input type="number" step="0.01" id="i-investimento" value="${v('investimento')}" placeholder="gasto do Meta"></div>
+    <div class="fg"><label>Cliques no link</label><input type="number" id="i-cliques" value="${v('cliques')}"></div>
+    <div class="fg"><label>PageView</label><input type="number" id="i-pageview" value="${v('pageview')}"></div>
+    <div class="fg"><label>Checkout (finalizações)</label><input type="number" id="i-checkout" value="${v('checkout')}"></div>
+    <div class="fg"><label>Vendas marcadas pelo Meta</label><input type="number" id="i-metaSales" value="${v('metaSales')}"></div>
+   </div>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" id="i-save">Salvar</button></div>`);
+  md.querySelector('#i-save').onclick=()=>{const g=id=>md.querySelector(id).value;const num=id=>{const x=parseFloat(g(id).toString().replace(',','.'));return isNaN(x)?0:x;};
+    onSave({data:g('#i-data'),investimento:num('#i-investimento'),cliques:num('#i-cliques'),pageview:num('#i-pageview'),checkout:num('#i-checkout'),metaSales:num('#i-metaSales')});closeModal();};
+}
+function addEntrada(pid,cid,aid){const a=findAnun(findCamp(findProd(pid),cid),aid);entradaModal('Novo <span class="accent">dia</span>',null,d=>{a.entradas.push({id:uid(),...d});save();toast('Dia salvo');renderEstrutura();});}
+function editEntrada(pid,cid,aid,eid){const a=findAnun(findCamp(findProd(pid),cid),aid);const e=a.entradas.find(x=>x.id===eid);entradaModal('Editar <span class="accent">dia</span>',e,d=>{Object.assign(e,d);save();toast('Atualizado');renderEstrutura();});}
+function delEntrada(pid,cid,aid,eid){confirmDel('Excluir este dia?',()=>{const a=findAnun(findCamp(findProd(pid),cid),aid);a.entradas=a.entradas.filter(x=>x.id!==eid);save();toast('Excluído');renderEstrutura();});}
+
+function receitaModal(title,d,v,onSave){
+  openModal(`<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="form-grid"><div class="fg"><label>Data</label><input type="date" id="r-data" value="${d||new Date().toISOString().slice(0,10)}" ${d?'disabled':''}></div>
+   <div class="fg"><label>Receita recebida (R$)</label><input type="number" step="0.01" id="r-retorno" value="${v?v.retorno:''}"></div>
+   <div class="fg"><label>Aquisições (vendas PP)</label><input type="number" id="r-pp" value="${v?v.pp:''}"></div>
+   <div class="fg"><label>Order Bumps</label><input type="number" id="r-ob" value="${v?v.ob:''}"></div></div>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" id="r-save">Salvar</button></div>`);
+  md.querySelector('#r-save').onclick=()=>{const num=id=>{const x=parseFloat(md.querySelector(id).value.toString().replace(',','.'));return isNaN(x)?0:x;};
+    onSave(md.querySelector('#r-data').value,{retorno:num('#r-retorno'),pp:num('#r-pp'),ob:num('#r-ob')});closeModal();};
+}
+function addReceita(pid){const p=findProd(pid);receitaModal('Receita manual do dia',null,null,(d,v)=>{p.receita[d]=v;save();toast('Receita salva');renderEstrutura();});}
+function editReceita(pid,d){const p=findProd(pid);receitaModal('Editar receita',d,p.receita[d],(_,v)=>{p.receita[d]=v;save();toast('Atualizado');renderEstrutura();});}
+function delReceita(pid,d){confirmDel('Excluir a receita deste dia?',()=>{const p=findProd(pid);delete p.receita[d];save();toast('Excluído');renderEstrutura();});}
+
+/* ---------- IMPORT helpers ---------- */
+const norm=s=>(s==null?'':s.toString()).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+function toISO(v){
+  if(v instanceof Date && !isNaN(v))return v.getUTCFullYear()+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+String(v.getUTCDate()).padStart(2,'0');
+  const s=(v==null?'':v.toString()).trim();
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if(m)return m[3]+'-'+m[2]+'-'+m[1];
+  return null;
+}
+function readSheet(file,cb){
+  const r=new FileReader();
+  r.onload=ev=>{try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true});cb(wb);}catch(e){toast('Não consegui ler o arquivo',false);}};
+  r.onerror=()=>toast('Falha ao abrir arquivo',false);
+  r.readAsArrayBuffer(file);
+}
+function colIndex(header,matchers){for(let i=0;i<header.length;i++){const h=norm(header[i]);for(const m of matchers){if(m.exact?h===m.exact:h.includes(m.inc)){return i;}}}return -1;}
+
+/* ---------- IMPORT META ---------- */
+function openImportMeta(){
+  const prodOpts=DB.produtos.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('');
+  openModal(`<div class="modal-head"><h2>Importar <span class="accent">Meta</span></h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="note">Cria os criativos e preenche por dia o gasto, cliques, pageview, checkout e as vendas marcadas pelo Meta. Os criativos com o mesmo nome são atualizados em vez de duplicar.</div>
+   <div class="form-grid">
+     <div class="fg"><label>Produto</label><select id="im-prod" onchange="imMetaProdChange()">${prodOpts}<option value="__new">+ Criar novo produto</option></select></div>
+     <div class="fg" id="im-newprod-wrap" style="${DB.produtos.length?'display:none':''}"><label>Nome do novo produto</label><input id="im-newprod" placeholder="ex: Kit Lactancia Pro"></div>
+     <div class="fg full"><label>Campanha (nome = nome do produto)</label><input id="im-camp" placeholder="ex: Kit Documentos Profesionales"></div>
+   </div>
+   <div class="dz" id="im-dz" style="margin-top:16px"><b>Clique para escolher</b> ou arraste o .xlsx do Meta aqui<input type="file" accept=".xlsx,.xls" id="im-file" style="display:none"></div>
+   <div id="im-status" style="margin-top:14px"></div>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button></div>`);
+  if(!DB.produtos.length){md.querySelector('#im-prod').value='__new';}
+  imMetaProdChange();
+  const dz=md.querySelector('#im-dz'),fi=md.querySelector('#im-file');
+  dz.onclick=()=>fi.click();
+  ;['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='var(--aqua)';}));
+  ;['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='';}));
+  dz.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleMetaFile(e.dataTransfer.files[0]);});
+  fi.onchange=()=>{if(fi.files[0])handleMetaFile(fi.files[0]);};
+}
+function imMetaProdChange(){const sel=md.querySelector('#im-prod');const isNew=sel.value==='__new';
+  md.querySelector('#im-newprod-wrap').style.display=isNew?'':'none';
+  const camp=md.querySelector('#im-camp');
+  if(!isNew){const p=findProd(sel.value);if(p&&!camp.value)camp.value=p.nome;}
+}
+function handleMetaFile(file){
+  const status=md.querySelector('#im-status');status.innerHTML='<div class="note">Lendo arquivo...</div>';
+  readSheet(file,wb=>{
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    if(!rows.length){status.innerHTML='<div class="note">Planilha vazia.</div>';return;}
+    const H=rows[0];
+    const ci={
+      data:colIndex(H,[{inc:'inicio dos relatorios'},{inc:'inicio do relatorio'},{exact:'dia'}]),
+      anuncio:colIndex(H,[{inc:'nome do anuncio'}]),
+      valor:colIndex(H,[{inc:'valor usado'}]),
+      cliques:colIndex(H,[{inc:'cliques no link'}]),
+      pageview:colIndex(H,[{inc:'visualizacoes da pagina'}]),
+      checkout:colIndex(H,[{inc:'finalizacoes de compra'}]),
+      resultados:colIndex(H,[{exact:'resultados'}])
+    };
+    if(ci.anuncio<0||ci.valor<0||ci.data<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas (Nome do anúncio, Valor usado, Início dos relatórios). Confirme que é o relatório de anúncios do Meta.</div>';return;}
+    const data={};let count=0,creatives=new Set();
+    for(let i=1;i<rows.length;i++){const r=rows[i];const name=r[ci.anuncio];if(name==null||name.toString().trim()==='')continue;
+      const inv=+r[ci.valor]||0;const cl=ci.cliques>=0?+r[ci.cliques]||0:0;
+      if(inv===0&&cl===0)continue;
+      const iso=toISO(r[ci.data]);if(!iso)continue;
+      const nm=name.toString().trim();creatives.add(nm);
+      (data[nm]=data[nm]||{})[iso]={data:iso,investimento:inv,cliques:cl,
+        pageview:ci.pageview>=0?+r[ci.pageview]||0:0,checkout:ci.checkout>=0?+r[ci.checkout]||0:0,
+        metaSales:ci.resultados>=0?+r[ci.resultados]||0:0};
+      count++;}
+    if(!count){status.innerHTML='<div class="note">Nenhuma linha com gasto encontrada.</div>';return;}
+    // resolve produto + campanha
+    let pid=md.querySelector('#im-prod').value;
+    if(pid==='__new'){const nm=(md.querySelector('#im-newprod').value||'Novo produto').trim();const np={id:uid(),nome:nm,hotmartNomes:[],campanhas:[],receita:{}};DB.produtos.push(np);pid=np.id;}
+    const p=findProd(pid);
+    const campName=(md.querySelector('#im-camp').value||p.nome).trim();
+    let c=p.campanhas.find(x=>norm(x.nome)===norm(campName));
+    if(!c){c={id:uid(),nome:campName,anuncios:[]};p.campanhas.push(c);}
+    Object.entries(data).forEach(([nm,days])=>{
+      let a=c.anuncios.find(x=>norm(x.nome)===norm(nm));
+      if(!a){a={id:uid(),nome:nm,entradas:[]};c.anuncios.push(a);}
+      Object.values(days).forEach(d=>{const ex=a.entradas.find(e=>e.data===d.data);if(ex)Object.assign(ex,d);else a.entradas.push({id:uid(),...d});});
+    });
+    save();
+    status.innerHTML=`<div class="note" style="border-color:var(--green)">Importado: <b>${creatives.size}</b> criativo(s), <b>${count}</b> dia(s) na campanha <b>${esc(campName)}</b>.</div>`;
+    toast('Meta importado');
+    setTimeout(()=>{closeModal();setTab('estrutura');nav={produtoId:pid,campanhaId:c.id,anuncioId:null};renderEstrutura();},900);
+  });
+}
+
+/* ---------- IMPORT HOTMART ---------- */
+let HOT_PENDING=null;
+function openImportHotmart(){
+  openModal(`<div class="modal-head"><h2>Importar <span class="accent">Hotmart</span></h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="note">Cada produto é contado pelas vendas dele próprio. Quando dois produtos foram comprados na mesma sessão (mesmo comprador, até <b>1h</b> de diferença), cada um conta a venda dele e marca o outro como order bump. A receita é a do próprio produto, em reais (valor recebido convertido). Conta só vendas <b>Aprovado</b> e <b>Completo</b>.</div>
+   <div class="dz" id="ih-dz"><b>Clique para escolher</b> ou arraste o relatório de vendas (.xls) aqui<input type="file" accept=".xls,.xlsx" id="ih-file" style="display:none"></div>
+   <div id="ih-status" style="margin-top:14px"></div>
+   <div class="modal-foot" id="ih-foot"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button></div>`);
+  const dz=md.querySelector('#ih-dz'),fi=md.querySelector('#ih-file');
+  dz.onclick=()=>fi.click();
+  ;['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='var(--aqua)';}));
+  ;['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='';}));
+  dz.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleHotFile(e.dataTransfer.files[0]);});
+  fi.onchange=()=>{if(fi.files[0])handleHotFile(fi.files[0]);};
+}
+function handleHotFile(file){
+  const status=md.querySelector('#ih-status');status.innerHTML='<div class="note">Lendo arquivo...</div>';
+  readSheet(file,wb=>{
+    let ws=wb.Sheets['Report']||wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    if(!rows.length){status.innerHTML='<div class="note">Planilha vazia.</div>';return;}
+    const H=rows[0];
+    const ci={
+      produto:colIndex(H,[{inc:'nome do produto'}]),
+      dataVenda:colIndex(H,[{inc:'data de venda'}]),
+      status:colIndex(H,[{exact:'status'}]),
+      nome:colIndex(H,[{exact:'nome'}]),
+      doc:colIndex(H,[{exact:'documento'}]),
+      email:colIndex(H,[{exact:'email'}]),
+      recebido:colIndex(H,[{inc:'valor que voce recebeu convertido'}])
+    };
+    if(ci.produto<0||ci.dataVenda<0||ci.recebido<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas (Nome do Produto, Data de Venda, Valor que você recebeu convertido). Confirme que é o histórico de vendas da Hotmart.</div>';return;}
+    const items=[];
+    for(let i=1;i<rows.length;i++){const r=rows[i];if(r[ci.produto]==null)continue;
+      const st=norm(r[ci.status]); if(ci.status>=0 && !(st==='aprovado'||st==='completo'))continue;
+      const dRaw=(r[ci.dataVenda]||'').toString();
+      const iso=toISO(dRaw); if(!iso)continue;
+      // datetime for clustering
+      let dt; const mt=dRaw.match(/(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2}):(\d{2})/);
+      if(mt)dt=new Date(+mt[3],+mt[2]-1,+mt[1],+mt[4],+mt[5],+mt[6]);
+      else if(r[ci.dataVenda] instanceof Date)dt=r[ci.dataVenda];
+      else dt=new Date(iso+'T00:00:00');
+      const buyer=norm(r[ci.email])||norm(r[ci.doc])||norm(r[ci.nome])||('x'+i);
+      items.push({produto:(r[ci.produto]||'').toString().trim(),iso,dt,buyer,recebido:+r[ci.recebido]||0});
+    }
+    if(!items.length){status.innerHTML='<div class="note">Nenhuma venda aprovada encontrada.</div>';return;}
+    // group by buyer within 1h
+    items.sort((a,b)=>a.buyer<b.buyer?-1:a.buyer>b.buyer?1:a.dt-b.dt);
+    const WIN=3600*1000,orders=[];let cur=[],lb=null,ld=null;
+    for(const it of items){if(lb!==null&&(it.buyer!==lb||(it.dt-ld)>WIN)){orders.push(cur);cur=[];}cur.push(it);lb=it.buyer;ld=it.dt;}
+    if(cur.length)orders.push(cur);
+    // aggregate per product: every row counts as a sale of its own product;
+    // OB count for that sale = other items in the same grouped order (different products);
+    // revenue = the product's own received value (no cross-product attribution)
+    const byProd={}; // name -> {pp,ob,rev, days:{iso:{retorno,pp,ob}}}
+    orders.forEach(o=>{
+      // count instances per product name in this order
+      const cnt={};o.forEach(it=>cnt[it.produto]=(cnt[it.produto]||0)+1);
+      o.forEach(it=>{const name=it.produto;
+        const others=o.length-cnt[name];
+        const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,days:{}};
+        P.pp++;P.ob+=others;P.rev+=it.recebido;
+        const D=P.days[it.iso]=P.days[it.iso]||{retorno:0,pp:0,ob:0};
+        D.retorno+=it.recebido;D.pp++;D.ob+=others;
+      });
+    });
+    HOT_PENDING=byProd;
+    renderHotMapping(byProd);
+  });
+}
+function renderHotMapping(byProd){
+  const status=md.querySelector('#ih-status');
+  const names=Object.keys(byProd).sort((a,b)=>byProd[b].rev-byProd[a].rev);
+  const prodOpts=p=>DB.produtos.map(pr=>`<option value="${pr.id}" ${autoMatch(p,pr)?'selected':''}>${esc(pr.nome)}</option>`).join('');
+  status.innerHTML=`<div class="form-section" style="border:none;padding:0;margin:0 0 6px">Vincule só os produtos que você quer trazer agora</div>
+    <div class="note" style="margin:0 0 14px">Tudo que ficar em <b>Ignorar</b> não entra. O relatório traz as vendas de todos os produtos juntos, então importe um de cada vez se preferir. Você pode trazer os outros depois sem perder estes.</div>`+
+    names.map((n,idx)=>`<div class="map-row"><div><div class="mp-name">${esc(n)}</div><div class="mp-meta">${byProd[n].pp} venda(s) · ${byProd[n].ob} OB · ${fBRL(byProd[n].rev)}</div></div>
+      <select data-hot="${idx}"><option value="__skip">Ignorar</option>${prodOpts(n)}<option value="__new">+ Criar com este nome</option></select></div>`).join('');
+  // padrão: produto que casa com um existente já vem vinculado; o resto fica em Ignorar
+  names.forEach((n,idx)=>{const sel=status.querySelector(`select[data-hot="${idx}"]`);const m=DB.produtos.find(pr=>autoMatch(n,pr));sel.value=m?m.id:'__skip';});
+  md.querySelector('#ih-foot').innerHTML=`<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="applyHotMapping()">Aplicar importação</button>`;
+}
+function autoMatch(hotName,prod){
+  const a=norm(hotName),pn=norm(prod.nome);
+  if(!a||!pn)return false;
+  if(a.includes(pn)||pn.includes(a))return true;
+  return (prod.hotmartNomes||[]).some(h=>norm(h)===a);
+}
+function applyHotMapping(){
+  const status=md.querySelector('#ih-status');
+  const names=Object.keys(HOT_PENDING).sort((a,b)=>HOT_PENDING[b].rev-HOT_PENDING[a].rev);
+  let applied=0;
+  names.forEach((n,idx)=>{const sel=status.querySelector(`select[data-hot="${idx}"]`);if(!sel)return;const val=sel.value;if(val==='__skip')return;
+    let p;
+    if(val==='__new'){p={id:uid(),nome:n,hotmartNomes:[n],campanhas:[],receita:{}};DB.produtos.push(p);}
+    else{p=findProd(val);if(!p)return;if(!p.hotmartNomes)p.hotmartNomes=[];if(!p.hotmartNomes.some(x=>norm(x)===norm(n)))p.hotmartNomes.push(n);}
+    const days=HOT_PENDING[n].days;
+    Object.entries(days).forEach(([iso,v])=>{
+      // multiple hotmart products can map to same app product on same day -> sum
+      const ex=p.receita[iso];
+      if(ex && ex.__src!==val){p.receita[iso]={retorno:(ex.retorno||0)+v.retorno,pp:(ex.pp||0)+v.pp,ob:(ex.ob||0)+v.ob,__src:val};}
+      else p.receita[iso]={retorno:v.retorno,pp:v.pp,ob:v.ob,__src:val};
+    });
+    applied++;
+  });
+  save();HOT_PENDING=null;
+  toast('Hotmart importado');
+  closeModal();setTab('painel');
+}
+
+/* ---------- settings ---------- */
+function openSettings(){
+  openModal(`<div class="modal-head"><h2>Ajustes & <span class="accent">dados</span></h2><button class="close-x" onclick="closeModal()">✕</button></div>
+   <div class="fg full" style="margin-bottom:18px"><label>Cotação padrão do dólar (R$)</label><input type="number" step="0.01" id="s-cot" value="${DB.cotacaoPadrao}"><span class="hint">usada só em lançamentos manuais em dólar; vendas da Hotmart já vêm em reais</span></div>
+   <div class="form-section" style="margin-bottom:14px">Backup</div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="exportData()">⬇ Exportar (.json)</button>
+     <label class="btn btn-ghost" style="cursor:pointer">⬆ Importar backup<input type="file" accept="application/json" style="display:none" onchange="importBackup(this)"></label>
+     <button class="btn btn-ghost btn-danger" onclick="wipe()">Limpar tudo</button></div>
+   <p class="hint" style="margin-top:14px;line-height:1.5">Os dados ficam salvos neste navegador. Exporte para guardar um backup ou levar para outro dispositivo.</p>
+   <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button><button class="btn btn-primary" id="s-save">Salvar</button></div>`);
+  md.querySelector('#s-save').onclick=()=>{const x=parseFloat(md.querySelector('#s-cot').value.replace(',','.'));if(!isNaN(x))DB.cotacaoPadrao=x;save();toast('Salvo');closeModal();};
+}
+function exportData(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='cardume-backup.json';a.click();URL.revokeObjectURL(u);}
+function importBackup(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.produtos)throw 0;DB=migrate(d);save();toast('Backup importado');closeModal();renderAll();}catch(e){toast('Arquivo inválido',false);}};r.readAsText(f);}
+function wipe(){confirmDel('Apagar TODOS os dados? Não tem volta.',()=>{DB={cotacaoPadrao:5,produtos:[]};save();nav={produtoId:null,campanhaId:null,anuncioId:null};toast('Tudo apagado');renderAll();});}
+
+/* ---------- utils ---------- */
+function esc(s){return(s+'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+let toastT;function toast(msg,ok=true){const t=document.getElementById('toast');t.innerHTML=(ok?'<span class="i">✓</span> ':'⚠ ')+msg;t.className='toast show'+(ok?' ok':' err');clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2600);}
+function renderAll(){refreshFilters();TAB==='painel'?renderPainel():renderEstrutura();}
+
+/* ---------- bg ---------- */
+(function(){const cv=document.getElementById('bgcanvas'),ctx=cv.getContext('2d');let w,h,fish=[];
+  function rs(){w=cv.width=innerWidth;h=cv.height=innerHeight;}rs();addEventListener('resize',rs);
+  for(let i=0;i<46;i++)fish.push({x:Math.random()*w,y:Math.random()*h,s:.2+Math.random()*.5,r:.6+Math.random()*1.6,o:.1+Math.random()*.35,dy:(Math.random()-.5)*.15});
+  function draw(){ctx.clearRect(0,0,w,h);fish.forEach(f=>{f.x+=f.s;f.y+=f.dy;if(f.x>w+5)f.x=-5;if(f.y<0||f.y>h)f.dy*=-1;
+    ctx.beginPath();ctx.fillStyle='rgba(60,232,236,'+f.o+')';ctx.shadowColor='rgba(60,232,236,.8)';ctx.shadowBlur=8;ctx.ellipse(f.x,f.y,f.r*2.2,f.r,0,0,7);ctx.fill();ctx.shadowBlur=0;});requestAnimationFrame(draw);}draw();})();
+
+refreshFilters();renderPainel();
+</script>
+</body>
+</html>

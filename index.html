@@ -50,7 +50,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg-0);color:var(--ink);ov
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(16px);box-shadow:var(--glow);}
 .section-title{font-family:'Sora';font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:10px;}
 .section-title .dot{width:9px;height:9px;border-radius:50%;background:var(--aqua);box-shadow:0 0 12px var(--aqua);}
-.filterbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:18px 20px;margin-bottom:18px;}
+.filterbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:18px 20px;margin-bottom:18px;position:relative;z-index:50;}
 .field{display:flex;flex-direction:column;gap:6px;}
 .field label{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;}
 .field input,.field select{font-family:'Manrope';font-size:.86rem;background:rgba(6,16,34,0.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;min-width:140px;outline:none;transition:.2s;}
@@ -59,7 +59,7 @@ input[type=date]{color-scheme:dark;}
 .ms{position:relative;}
 .ms-toggle{cursor:pointer;min-width:200px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(6,16,34,.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;font-size:.86rem;}
 .ms-toggle .cnt{background:rgba(34,227,230,.15);color:var(--aqua);font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;}
-.ms-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:260px;max-height:300px;overflow:auto;background:#08172f;border:1px solid var(--line-strong);border-radius:12px;padding:8px;box-shadow:0 20px 50px -12px rgba(0,0,0,.7);display:none;}
+.ms-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:200;min-width:260px;max-height:300px;overflow:auto;background:#08172f;border:1px solid var(--line-strong);border-radius:12px;padding:8px;box-shadow:0 20px 50px -12px rgba(0,0,0,.7);display:none;}
 .ms-pop.open{display:block;}
 .ms-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--ink-mut);}
 .ms-item:hover{background:rgba(60,130,200,.12);color:var(--ink);}
@@ -165,7 +165,7 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
   <div class="topbar">
     <div class="brand">
       <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12c3-5 8-5 11-5 4 0 7 2 9 5-2 3-5 5-9 5-3 0-8 0-11-5z" stroke="#37e8ec" stroke-width="1.4" stroke-linejoin="round"/><circle cx="15.5" cy="10.5" r="1.1" fill="#37e8ec"/><path d="M2 12c1.5-1 2.8-1.4 4-1.4M2 12c1.5 1 2.8 1.4 4 1.4" stroke="#37e8ec" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego <span style="opacity:.5;font-size:.65rem;letter-spacing:1.5px">v2.5</span> <span id="sync-dot" title="Sincronizando..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-left:4px;transition:.3s"></span></p></div>
+      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego <span style="opacity:.5;font-size:.65rem;letter-spacing:1.5px">v2.7</span> <span id="sync-dot" title="Sincronizando..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-left:4px;transition:.3s"></span></p></div>
     </div>
     <div class="top-actions">
       <div class="tabs">
@@ -748,12 +748,12 @@ function handleHotFile(file){
       const orderRev=o.reduce((s,x)=>s+x.recebido,0);
       o.forEach((it,idx)=>{
         const name=it.produto,isLeader=(idx===leaderIdx);
-        const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,days:{}};
+        const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,leads:0,days:{}};
         P.pp++;
         const D=P.days[it.iso]=P.days[it.iso]||{retorno:0,pp:0,ob:0};
         D.pp++;
         if(isLeader){
-          P.ob+=o.length-1;P.rev+=orderRev;
+          P.leads++;P.ob+=o.length-1;P.rev+=orderRev;
           D.retorno+=orderRev;D.ob+=o.length-1;
         } else {
           P.rev+=it.recebido;
@@ -767,14 +767,23 @@ function handleHotFile(file){
 }
 function renderHotMapping(byProd){
   const status=md.querySelector('#ih-status');
-  const names=Object.keys(byProd).sort((a,b)=>byProd[b].rev-byProd[a].rev);
+  const all=Object.keys(byProd).sort((a,b)=>byProd[b].rev-byProd[a].rev);
+  // principais = lideram pelo menos um pedido; order bumps = só aparecem junto de outro produto
+  const principais=all.filter(n=>byProd[n].leads>0);
+  const bumps=all.filter(n=>byProd[n].leads===0);
   const prodOpts=p=>DB.produtos.map(pr=>`<option value="${pr.id}" ${autoMatch(p,pr)?'selected':''}>${esc(pr.nome)}</option>`).join('');
-  status.innerHTML=`<div class="form-section" style="border:none;padding:0;margin:0 0 6px">Vincule só os produtos que você quer trazer agora</div>
-    <div class="note" style="margin:0 0 14px">Tudo que ficar em <b>Ignorar</b> não entra. O relatório detectou <b>${names.length} produto(s)</b> com ${Object.values(byProd).reduce((s,v)=>s+v.pp,0)} linhas aprovadas no total.</div>`+
-    names.map((n,idx)=>`<div class="map-row"><div><div class="mp-name">${esc(n)}</div><div class="mp-meta">${byProd[n].pp} venda(s) · ${byProd[n].ob} OB · ${fBRL(byProd[n].rev)}</div></div>
-      <select data-hot="${idx}"><option value="__skip">Ignorar</option>${prodOpts(n)}<option value="__new">+ Criar com este nome</option></select></div>`).join('');
-  // padrão: produto que casa com um existente já vem vinculado; o resto fica em Ignorar
-  names.forEach((n,idx)=>{const sel=status.querySelector(`select[data-hot="${idx}"]`);const m=DB.produtos.find(pr=>autoMatch(n,pr));sel.value=m?m.id:'__skip';});
+  const idxOf={};all.forEach((n,i)=>idxOf[n]=i);
+  const rowHtml=n=>`<div class="map-row"><div><div class="mp-name">${esc(n)}</div><div class="mp-meta">${byProd[n].pp} venda(s) · ${byProd[n].ob} OB · ${fBRL(byProd[n].rev)}</div></div>
+      <select data-hot="${idxOf[n]}"><option value="__skip">Ignorar</option>${prodOpts(n)}<option value="__new">+ Criar com este nome</option></select></div>`;
+  let html=`<div class="form-section" style="border:none;padding:0;margin:0 0 6px">Vincule cada produto principal a um produto do app</div>
+    <div class="note" style="margin:0 0 14px">Mostrando os <b>${principais.length} produto(s) principais</b>. Os order bumps comprados junto já entram somados dentro do principal, então não aparecem aqui pra você não contar em dobro.</div>`;
+  html+=principais.map(rowHtml).join('');
+  if(bumps.length){
+    html+=`<div id="bumps-wrap" style="margin-top:6px"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('bumps-list').style.display=document.getElementById('bumps-list').style.display==='none'?'block':'none'">Mostrar ${bumps.length} produto(s) menores (order bumps)</button><div id="bumps-list" style="display:none;margin-top:10px">${bumps.map(rowHtml).join('')}</div></div>`;
+  }
+  status.innerHTML=html;
+  // padrão: principal que casa com um existente vem vinculado; resto em Ignorar
+  all.forEach(n=>{const sel=status.querySelector(`select[data-hot="${idxOf[n]}"]`);if(!sel)return;const m=DB.produtos.find(pr=>autoMatch(n,pr));sel.value=(m&&byProd[n].leads>0)?m.id:'__skip';});
   md.querySelector('#ih-foot').innerHTML=`<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="applyHotMapping()">Aplicar importação</button>`;
 }
 function autoMatch(hotName,prod){
@@ -783,26 +792,27 @@ function autoMatch(hotName,prod){
   if(a.includes(pn)||pn.includes(a))return true;
   return (prod.hotmartNomes||[]).some(h=>norm(h)===a);
 }
-function applyHotMapping(){
+async function applyHotMapping(){
   const status=md.querySelector('#ih-status');
   const names=Object.keys(HOT_PENDING).sort((a,b)=>HOT_PENDING[b].rev-HOT_PENDING[a].rev);
-  let applied=0;
+  // agrupa por produto-alvo (vários produtos da Hotmart podem apontar pro mesmo produto do app)
+  const targets={};
   names.forEach((n,idx)=>{const sel=status.querySelector(`select[data-hot="${idx}"]`);if(!sel)return;const val=sel.value;if(val==='__skip')return;
     let p;
-    if(val==='__new'){p={id:uid(),nome:n,hotmartNomes:[n],campanhas:[],receita:{}};DB.produtos.push(p);}
-    else{p=findProd(val);if(!p)return;if(!p.hotmartNomes)p.hotmartNomes=[];if(!p.hotmartNomes.some(x=>norm(x)===norm(n)))p.hotmartNomes.push(n);}
-    const days=HOT_PENDING[n].days;
-    Object.entries(days).forEach(([iso,v])=>{
-      // multiple hotmart products can map to same app product on same day -> sum
-      const ex=p.receita[iso];
-      if(ex && ex.__src!==val){p.receita[iso]={retorno:(ex.retorno||0)+v.retorno,pp:(ex.pp||0)+v.pp,ob:(ex.ob||0)+v.ob,__src:val};}
-      else p.receita[iso]={retorno:v.retorno,pp:v.pp,ob:v.ob,__src:val};
-    });
-    applied++;
+    if(val==='__new'){p=DB.produtos.find(x=>norm(x.nome)===norm(n));if(!p){p={id:uid(),nome:n,hotmartNomes:[n],campanhas:[],receita:{}};DB.produtos.push(p);}}
+    else{p=findProd(val);if(!p)return;}
+    if(!p.hotmartNomes)p.hotmartNomes=[];if(!p.hotmartNomes.some(x=>norm(x)===norm(n)))p.hotmartNomes.push(n);
+    const t=targets[p.id]=targets[p.id]||{p,days:{}};
+    Object.entries(HOT_PENDING[n].days).forEach(([iso,v])=>{const d=t.days[iso]=t.days[iso]||{retorno:0,pp:0,ob:0};d.retorno+=v.retorno;d.pp+=v.pp;d.ob+=v.ob;});
   });
-  save();HOT_PENDING=null;
+  // sobrescreve a receita de cada produto nas datas importadas (não soma com dado antigo)
+  Object.values(targets).forEach(t=>Object.entries(t.days).forEach(([iso,v])=>{t.p.receita[iso]={retorno:v.retorno,pp:v.pp,ob:v.ob};}));
+  HOT_PENDING=null;closeModal();SEL_PROD=null;
+  try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
+  setSyncStatus('sync');
+  await saveToSupabase(DB);
   toast('Hotmart importado');
-  closeModal();setTab('painel');
+  setTab('painel');
 }
 
 /* ---------- settings ---------- */

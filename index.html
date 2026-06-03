@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --bg-0:#040912;--bg-1:#071229;--surface:rgba(13,29,58,0.55);--surface-2:rgba(18,38,74,0.7);
@@ -164,7 +165,7 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
   <div class="topbar">
     <div class="brand">
       <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12c3-5 8-5 11-5 4 0 7 2 9 5-2 3-5 5-9 5-3 0-8 0-11-5z" stroke="#37e8ec" stroke-width="1.4" stroke-linejoin="round"/><circle cx="15.5" cy="10.5" r="1.1" fill="#37e8ec"/><path d="M2 12c1.5-1 2.8-1.4 4-1.4M2 12c1.5 1 2.8 1.4 4 1.4" stroke="#37e8ec" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego</p></div>
+      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego <span style="opacity:.5;font-size:.65rem;letter-spacing:1.5px">v2.5</span> <span id="sync-dot" title="Sincronizando..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-left:4px;transition:.3s"></span></p></div>
     </div>
     <div class="top-actions">
       <div class="tabs">
@@ -178,6 +179,15 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
   </div>
 
   <div id="view-painel">
+    <div class="panel" style="padding:12px 20px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <span style="font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);font-weight:600;margin-right:4px">Período rápido</span>
+      <button class="btn btn-ghost btn-sm" onclick="setMesRapido(0)">Este mês</button>
+      <button class="btn btn-ghost btn-sm" onclick="setMesRapido(-1)">Mês passado</button>
+      <button class="btn btn-ghost btn-sm" onclick="setMesRapido(-2)" id="mes-2"></button>
+      <button class="btn btn-ghost btn-sm" onclick="setMesRapido(-3)" id="mes-3"></button>
+      <button class="btn btn-ghost btn-sm" onclick="setMesRapido(-4)" id="mes-4"></button>
+      <button class="btn btn-ghost btn-sm" onclick="clearFilters()" style="margin-left:auto">Todo período</button>
+    </div>
     <div class="panel filterbar">
       <div class="field"><label>De</label><input type="date" id="f-from" onchange="renderPainel()"></div>
       <div class="field"><label>Até</label><input type="date" id="f-to" onchange="renderPainel()"></div>
@@ -193,6 +203,10 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
     </div>
     <div class="kpi-grid" id="kpis"></div>
     <div class="sub-kpis" id="subkpis"></div>
+    <div class="panel" style="padding:20px 22px;margin-bottom:18px">
+      <div class="section-title" style="margin-bottom:16px"><span class="dot"></span> Investido vs Receita por dia</div>
+      <canvas id="chart-main" height="90"></canvas>
+    </div>
     <div id="grp-note"></div>
     <div class="panel" style="padding:22px 0 8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0 22px 16px;">
@@ -204,7 +218,10 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
   </div>
 
   <div id="view-estrutura" class="hidden">
-    <div class="crumbs" id="crumbs"></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap">
+      <div class="crumbs" id="crumbs" style="margin-bottom:0;flex:1"></div>
+      <input id="search-input" type="text" placeholder="Buscar produto, campanha ou anúncio..." oninput="renderEstrutura()" style="font-family:Manrope;font-size:.86rem;background:rgba(6,16,34,.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 14px;min-width:260px;outline:none;transition:.2s" onfocus="this.style.borderColor='var(--aqua)'" onblur="this.style.borderColor='var(--line)'">
+    </div>
     <div id="estrutura-body"></div>
   </div>
 </div>
@@ -213,10 +230,43 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
 
 <script>
 const KEY='cardume_v2';
-let DB=load();
-function load(){try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r));}catch(e){}return{cotacaoPadrao:5,produtos:[]};}
+const SUPA_URL='https://nwbqbdxepzmaaegextiy.supabase.co';
+const SUPA_KEY='sb_publishable_ppnYnPQXD5NJq12k2oe3RQ_4SLwaQM3';
+const SUPA_ID='main';
+
+async function loadFromSupabase(){
+  try{
+    const r=await fetch(`${SUPA_URL}/rest/v1/dados_cardume?id=eq.${SUPA_ID}&select=conteudo`,
+      {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    if(!r.ok)return null;
+    const d=await r.json();
+    return(d&&d.length>0)?d[0].conteudo:null;
+  }catch(e){return null;}
+}
+async function saveToSupabase(data){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/dados_cardume`,{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,
+        'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({id:SUPA_ID,conteudo:data})
+    });
+    setSyncStatus('ok');
+  }catch(e){setSyncStatus('err');}
+}
+function setSyncStatus(s){
+  const el=document.getElementById('sync-dot');if(!el)return;
+  el.title=s==='ok'?'Salvo na nuvem':s==='sync'?'Sincronizando...':'Erro ao sincronizar';
+  el.style.background=s==='ok'?'var(--green)':s==='sync'?'var(--gold)':'var(--coral)';
+}
+// DB inicializado pelo initApp()
+function loadLocal(){try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r));}catch(e){}return{cotacaoPadrao:5,produtos:[]};}
 function migrate(d){d.produtos=d.produtos||[];d.produtos.forEach(p=>{p.hotmartNomes=p.hotmartNomes||[];p.receita=p.receita||{};p.campanhas=p.campanhas||[];p.campanhas.forEach(c=>{c.anuncios=c.anuncios||[];});});return d;}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){toast('Não consegui salvar',false);}}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
+  setSyncStatus('sync');
+  saveToSupabase(DB);
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 
 /* ---------- format ---------- */
@@ -263,6 +313,36 @@ function setTab(t){TAB=t;document.querySelectorAll('.tab').forEach(b=>b.classLis
   document.getElementById('view-painel').classList.toggle('hidden',t!=='painel');
   document.getElementById('view-estrutura').classList.toggle('hidden',t!=='estrutura');
   t==='painel'?renderPainel():renderEstrutura();}
+/* ---------- meses rápidos ---------- */
+const MESES_PT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function initMesButtons(){for(let i=2;i<=4;i++){const el=document.getElementById('mes-'+i);if(el){const d=new Date();d.setMonth(d.getMonth()-(i-1));el.textContent=MESES_PT[d.getMonth()]+' '+String(d.getFullYear()).slice(2);}}}
+function setMesRapido(offset){const d=new Date();d.setMonth(d.getMonth()+offset);const y=d.getFullYear(),m=d.getMonth();const from=new Date(y,m,1),to=new Date(y,m+1,0);document.getElementById('f-from').value=from.toISOString().slice(0,10);document.getElementById('f-to').value=to.toISOString().slice(0,10);renderPainel();}
+/* ---------- gráfico ---------- */
+let chartInst=null;
+function renderChart(prods,from,to){
+  const dm={};
+  prods.forEach(p=>{
+    prodEntriesFiltered(p,from,to).forEach(e=>{if(!e.data)return;const D=dm[e.data]=dm[e.data]||{inv:0,rec:0};D.inv+=+e.investimento||0;});
+    Object.entries(p.receita||{}).forEach(([d,v])=>{if(from&&d<from)return;if(to&&d>to)return;const D=dm[d]=dm[d]||{inv:0,rec:0};D.rec+=+v.retorno||0;});
+  });
+  const labels=Object.keys(dm).sort(),inv=labels.map(d=>dm[d].inv),rec=labels.map(d=>dm[d].rec);
+  const fmt=d=>{const[,m,dy]=d.split('-');return dy+'/'+m;};
+  const ctx=document.getElementById('chart-main');if(!ctx)return;
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  if(!labels.length){ctx.style.display='none';return;}ctx.style.display='';
+  chartInst=new Chart(ctx,{type:'line',data:{labels:labels.map(fmt),datasets:[
+    {label:'Investido',data:inv,borderColor:'#22e3e6',backgroundColor:'rgba(34,227,230,.08)',tension:.35,pointRadius:3,borderWidth:2,fill:true},
+    {label:'Receita',data:rec,borderColor:'#34e6b0',backgroundColor:'rgba(52,230,176,.08)',tension:.35,pointRadius:3,borderWidth:2,fill:true}
+  ]},options:{responsive:true,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:'#8ba6cc',font:{family:'Manrope',size:12}}},
+      tooltip:{backgroundColor:'#08172f',borderColor:'rgba(94,180,255,.35)',borderWidth:1,titleColor:'#e9f2ff',bodyColor:'#8ba6cc',
+        callbacks:{label:c=>c.dataset.label+': '+fBRL(c.parsed.y)}}},
+    scales:{x:{ticks:{color:'#5e779b',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(74,140,210,.08)'}},
+      y:{ticks:{color:'#5e779b',font:{family:'JetBrains Mono',size:10},callback:v=>fBRL(v)},grid:{color:'rgba(74,140,210,.08)'}}}
+  }});}
+/* ---------- busca ---------- */
+function getSearch(){const el=document.getElementById('search-input');return el?el.value.trim().toLowerCase():'';}
+function matchSearch(s,q){return!q||s.toLowerCase().includes(q);}
 function setGroup(g){GROUP=g;document.querySelectorAll('#grp button').forEach(b=>b.classList.toggle('on',b.dataset.g===g));renderPainel();}
 function getRange(){return[document.getElementById('f-from').value,document.getElementById('f-to').value];}
 
@@ -318,6 +398,7 @@ function renderPainel(){
 
   document.getElementById('period-label').textContent=(from||to)?`${from?fDate(from):'início'} → ${to?fDate(to):'hoje'}`:'todo o período';
   document.getElementById('grp-title').textContent=GROUP==='produto'?'Por produto':GROUP==='campanha'?'Por campanha (lado de tráfego)':'Por anúncio (lado de tráfego)';
+  renderChart(prods,from,to);
 
   const note=document.getElementById('grp-note');
   note.innerHTML = GROUP==='produto'
@@ -392,7 +473,8 @@ function goLevel(l){if(l==='root')nav={produtoId:null,campanhaId:null,anuncioId:
 const stat=(l,v,cls)=>`<div class="tc-stat"><div class="l">${l}</div><div class="v ${cls||''}">${v}</div></div>`;
 
 function renderRoot(){
-  let cards=DB.produtos.map(p=>{const m=prodMetrics(p,null,null);
+  const q=getSearch();
+  let cards=DB.produtos.filter(p=>matchSearch(p.nome,q)).map(p=>{const m=prodMetrics(p,null,null);
     return `<div class="panel tcard" onclick="nav.produtoId='${p.id}';renderEstrutura()">
       <div class="tc-top"><div><h3>${esc(p.nome)}</h3><div class="tc-sub">${p.campanhas.length} campanha(s) · ${Object.keys(p.receita||{}).length} dia(s) de venda</div></div>
       <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editProduto('${p.id}')`)}${delBtn(`delProduto('${p.id}')`)}</div></div>
@@ -419,7 +501,7 @@ function renderProduto(p){
      <td style="padding-right:22px">${editBtn(`editReceita('${p.id}','${d}')`,true)} ${delBtn(`delReceita('${p.id}','${d}')`,true)}</td></tr>`;});
    const rv=aggReceita(p,null,null);rec+=`<tr class="row-total"><td>Total</td><td>${fBRL(rv.retorno)}</td><td>${fNum(rv.pp)}</td><td>${fNum(rv.ob)}</td><td></td></tr>`;}
   rec+=`</tbody></table></div></div>`;
-  let cards=p.campanhas.map(c=>{const a=aggSpend(prodEntries({campanhas:[c]}));
+  let cards=p.campanhas.filter(c=>matchSearch(c.nome,getSearch())).map(c=>{const a=aggSpend(prodEntries({campanhas:[c]}));
     return `<div class="panel tcard" onclick="nav.campanhaId='${c.id}';renderEstrutura()">
      <div class="tc-top"><div><h3>${esc(c.nome)}</h3><div class="tc-sub">${c.anuncios.length} anúncio(s)</div></div>
      <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editCampanha('${p.id}','${c.id}')`)}${delBtn(`delCampanha('${p.id}','${c.id}')`)}</div></div>
@@ -657,19 +739,26 @@ function handleHotFile(file){
     const WIN=3600*1000,orders=[];let cur=[],lb=null,ld=null;
     for(const it of items){if(lb!==null&&(it.buyer!==lb||(it.dt-ld)>WIN)){orders.push(cur);cur=[];}cur.push(it);lb=it.buyer;ld=it.dt;}
     if(cur.length)orders.push(cur);
-    // aggregate per product: every row counts as a sale of its own product;
-    // OB count for that sale = other items in the same grouped order (different products);
-    // revenue = the product's own received value (no cross-product attribution)
-    const byProd={}; // name -> {pp,ob,rev, days:{iso:{retorno,pp,ob}}}
+    // modelo híbrido: líder do pedido (mais caro) pega receita total + OBs;
+    // não-líderes contam como PP do próprio produto mas só com o próprio valor
+    const byProd={};
     orders.forEach(o=>{
-      // count instances per product name in this order
-      const cnt={};o.forEach(it=>cnt[it.produto]=(cnt[it.produto]||0)+1);
-      o.forEach(it=>{const name=it.produto;
-        const others=o.length-cnt[name];
+      const maxRec=Math.max(...o.map(x=>x.recebido));
+      const leaderIdx=o.findIndex(x=>x.recebido===maxRec);
+      const orderRev=o.reduce((s,x)=>s+x.recebido,0);
+      o.forEach((it,idx)=>{
+        const name=it.produto,isLeader=(idx===leaderIdx);
         const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,days:{}};
-        P.pp++;P.ob+=others;P.rev+=it.recebido;
+        P.pp++;
         const D=P.days[it.iso]=P.days[it.iso]||{retorno:0,pp:0,ob:0};
-        D.retorno+=it.recebido;D.pp++;D.ob+=others;
+        D.pp++;
+        if(isLeader){
+          P.ob+=o.length-1;P.rev+=orderRev;
+          D.retorno+=orderRev;D.ob+=o.length-1;
+        } else {
+          P.rev+=it.recebido;
+          D.retorno+=it.recebido;
+        }
       });
     });
     HOT_PENDING=byProd;
@@ -681,7 +770,7 @@ function renderHotMapping(byProd){
   const names=Object.keys(byProd).sort((a,b)=>byProd[b].rev-byProd[a].rev);
   const prodOpts=p=>DB.produtos.map(pr=>`<option value="${pr.id}" ${autoMatch(p,pr)?'selected':''}>${esc(pr.nome)}</option>`).join('');
   status.innerHTML=`<div class="form-section" style="border:none;padding:0;margin:0 0 6px">Vincule só os produtos que você quer trazer agora</div>
-    <div class="note" style="margin:0 0 14px">Tudo que ficar em <b>Ignorar</b> não entra. O relatório traz as vendas de todos os produtos juntos, então importe um de cada vez se preferir. Você pode trazer os outros depois sem perder estes.</div>`+
+    <div class="note" style="margin:0 0 14px">Tudo que ficar em <b>Ignorar</b> não entra. O relatório detectou <b>${names.length} produto(s)</b> com ${Object.values(byProd).reduce((s,v)=>s+v.pp,0)} linhas aprovadas no total.</div>`+
     names.map((n,idx)=>`<div class="map-row"><div><div class="mp-name">${esc(n)}</div><div class="mp-meta">${byProd[n].pp} venda(s) · ${byProd[n].ob} OB · ${fBRL(byProd[n].rev)}</div></div>
       <select data-hot="${idx}"><option value="__skip">Ignorar</option>${prodOpts(n)}<option value="__new">+ Criar com este nome</option></select></div>`).join('');
   // padrão: produto que casa com um existente já vem vinculado; o resto fica em Ignorar
@@ -744,7 +833,16 @@ function renderAll(){refreshFilters();TAB==='painel'?renderPainel():renderEstrut
   function draw(){ctx.clearRect(0,0,w,h);fish.forEach(f=>{f.x+=f.s;f.y+=f.dy;if(f.x>w+5)f.x=-5;if(f.y<0||f.y>h)f.dy*=-1;
     ctx.beginPath();ctx.fillStyle='rgba(60,232,236,'+f.o+')';ctx.shadowColor='rgba(60,232,236,.8)';ctx.shadowBlur=8;ctx.ellipse(f.x,f.y,f.r*2.2,f.r,0,0,7);ctx.fill();ctx.shadowBlur=0;});requestAnimationFrame(draw);}draw();})();
 
-refreshFilters();renderPainel();
+let DB={cotacaoPadrao:5,produtos:[]};
+async function initApp(){
+  const cloud=await loadFromSupabase();
+  if(cloud&&cloud.produtos){DB=migrate(cloud);try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+  else{DB=loadLocal();}
+  setSyncStatus('ok');
+  initMesButtons();
+  refreshFilters();renderPainel();
+}
+initApp();
 </script>
 </body>
 </html>

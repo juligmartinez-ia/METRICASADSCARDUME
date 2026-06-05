@@ -156,6 +156,47 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
 ::-webkit-scrollbar{height:9px;width:9px}::-webkit-scrollbar-thumb{background:rgba(60,130,200,.35);border-radius:10px}::-webkit-scrollbar-track{background:transparent}
 @media(max-width:1100px){.kpi-grid,.sub-kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.kpi-grid,.sub-kpis{grid-template-columns:repeat(2,1fr)}.form-grid,.map-row{grid-template-columns:1fr}.app{padding:18px 14px 70px}}
+
+/* === CRIATIVOS === */
+.cr-topbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:18px 20px;margin-bottom:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(16px);}
+.cr-cotacao{display:flex;align-items:center;gap:8px;background:rgba(245,196,81,.07);border:1px solid rgba(245,196,81,.25);border-radius:10px;padding:8px 14px;}
+.cr-cotacao label{font-size:.68rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);font-weight:700;white-space:nowrap;}
+.cr-cotacao input{font-family:'JetBrains Mono';font-size:.9rem;background:transparent;border:none;color:var(--gold);width:60px;outline:none;font-weight:700;}
+.camp-block{margin-bottom:28px;}
+.camp-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(34,227,230,.05);border:1px solid var(--line-strong);border-radius:14px 14px 0 0;cursor:pointer;}
+.camp-header:hover{background:rgba(34,227,230,.08);}
+.camp-header h3{font-family:'Sora';font-weight:700;font-size:.95rem;color:var(--aqua);flex:1;}
+.camp-header .camp-meta{font-family:'JetBrains Mono';font-size:.72rem;color:var(--ink-dim);}
+.camp-chevron{font-size:.8rem;color:var(--ink-dim);transition:.2s;}
+.camp-body{border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;overflow:hidden;}
+.cr-section{border-bottom:1px solid var(--line);}
+.cr-section:last-child{border-bottom:none;}
+.cr-ad-header{display:flex;align-items:center;gap:10px;padding:12px 20px;background:rgba(6,16,34,.4);}
+.cr-ad-header .ad-name{font-family:'Sora';font-weight:700;font-size:.85rem;color:var(--ink);}
+.cr-ad-header .ad-status{font-size:.66rem;padding:2px 8px;border-radius:20px;font-weight:700;font-family:'Sora';}
+.ad-status.ativo{background:rgba(52,230,176,.15);color:var(--green);}
+.ad-status.pausado{background:rgba(255,97,130,.12);color:var(--coral);}
+.cr-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.cr-tbl th{font-family:'Sora';text-align:right;font-weight:600;font-size:.6rem;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-dim);padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(6,16,34,.3);}
+.cr-tbl th:first-child{text-align:left;padding-left:20px;}
+.cr-tbl th:last-child{padding-right:20px;}
+.cr-tbl td{text-align:right;padding:10px 8px;border-bottom:1px solid rgba(74,140,210,.06);font-family:'JetBrains Mono';font-weight:500;white-space:nowrap;}
+.cr-tbl td:first-child{text-align:left;padding-left:20px;font-family:'Manrope';font-weight:600;}
+.cr-tbl td:last-child{padding-right:20px;}
+.cr-tbl tr:last-child td{border-bottom:none;}
+.cr-tbl .row-sub{background:rgba(34,227,230,.04);font-weight:700;}
+.cr-tbl .row-sub td{border-top:1px solid rgba(34,227,230,.15);color:var(--ink);}
+.cr-tbl .est-tag{font-family:'Sora';font-size:.56rem;background:rgba(245,196,81,.15);color:var(--gold);border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle;font-weight:700;}
+.privacy-on .mask-name{filter:blur(5px);user-select:none;pointer-events:none;}
+.priv-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Sora';font-size:.78rem;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink-mut);transition:.2s;}
+.priv-btn:hover{border-color:var(--aqua);color:var(--aqua);}
+.priv-btn.on{border-color:rgba(245,196,81,.5);color:var(--gold);background:rgba(245,196,81,.07);}
+.cr-empty{text-align:center;padding:50px 20px;color:var(--ink-dim);}
+.cr-empty .big{font-family:'Sora';font-size:1.05rem;color:var(--ink-mut);font-weight:700;margin-bottom:8px;}
+.cr-prod-select{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.loading-pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--aqua);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.cr-fetch-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(34,227,230,.05);border:1px solid var(--line);border-radius:10px;margin-bottom:16px;font-size:.82rem;color:var(--ink-mut);}
 </style>
 </head>
 <body>
@@ -165,13 +206,18 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
   <div class="topbar">
     <div class="brand">
       <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12c3-5 8-5 11-5 4 0 7 2 9 5-2 3-5 5-9 5-3 0-8 0-11-5z" stroke="#37e8ec" stroke-width="1.4" stroke-linejoin="round"/><circle cx="15.5" cy="10.5" r="1.1" fill="#37e8ec"/><path d="M2 12c1.5-1 2.8-1.4 4-1.4M2 12c1.5 1 2.8 1.4 4 1.4" stroke="#37e8ec" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego <span style="opacity:.5;font-size:.65rem;letter-spacing:1.5px">v2.7</span> <span id="sync-dot" title="Sincronizando..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-left:4px;transition:.3s"></span></p></div>
+      <div><h1>Cardume <b>Meta Ads</b></h1><p>Cockpit de tráfego <span style="opacity:.5;font-size:.65rem;letter-spacing:1.5px">v3.0</span> <span id="sync-dot" title="Sincronizando..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);vertical-align:middle;margin-left:4px;transition:.3s"></span></p></div>
     </div>
     <div class="top-actions">
       <div class="tabs">
         <button class="tab active" data-tab="painel" onclick="setTab('painel')">Painel</button>
         <button class="tab" data-tab="estrutura" onclick="setTab('estrutura')">Estrutura</button>
+        <button class="tab" data-tab="criativos" onclick="setTab('criativos')">Criativos</button>
       </div>
+      <button class="priv-btn" id="priv-btn" onclick="togglePrivacy()" title="Modo privacidade">
+        <svg id="priv-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span id="priv-label">Privacidade</span>
+      </button>
       <button class="btn btn-ghost btn-sm" onclick="openImportMeta()">⬆ Meta</button>
       <button class="btn btn-ghost btn-sm" onclick="openImportHotmart()">⬆ Hotmart</button>
       <button class="btn icon-btn btn-ghost" title="Ajustes" onclick="openSettings()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg></button>
@@ -224,7 +270,35 @@ tbody tr.clickable:hover{background:rgba(34,227,230,.06);}
     </div>
     <div id="estrutura-body"></div>
   </div>
+
+  <div id="view-criativos" class="hidden">
+    <div class="cr-topbar">
+      <div class="field">
+        <label>Produto</label>
+        <div class="ms" id="ms-cr-prod"></div>
+      </div>
+      <div class="field">
+        <label>De</label>
+        <input type="date" id="cr-from" onchange="renderCriativos()">
+      </div>
+      <div class="field">
+        <label>Até</label>
+        <input type="date" id="cr-to" onchange="renderCriativos()">
+      </div>
+      <div class="cr-cotacao">
+        <label>Cotação US$</label>
+        <span style="color:var(--gold);font-family:'JetBrains Mono';font-weight:700;margin-right:2px">R$</span>
+        <input type="number" id="cr-cotacao" step="0.01" value="5.00" onchange="renderCriativos()">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearCrFiltros()" style="margin-left:auto">Limpar filtros</button>
+      <button class="btn btn-primary btn-sm" onclick="exportCriativos()">⬇ Exportar planilha</button>
+      <button class="btn btn-ghost btn-sm" onclick="fetchMetaCriativos()">↻ Buscar do Meta</button>
+    </div>
+    <div id="cr-fetch-status" style="display:none"></div>
+    <div id="cr-body"></div>
+  </div>
 </div>
+
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -233,6 +307,26 @@ const KEY='cardume_v2';
 const SUPA_URL='https://nwbqbdxepzmaaegextiy.supabase.co';
 const SUPA_KEY='sb_publishable_ppnYnPQXD5NJq12k2oe3RQ_4SLwaQM3';
 const SUPA_ID='main';
+
+// Meta API config
+// Token e Account lidos do DB (salvo no Supabase via Ajustes)
+function getMetaToken(){return DB.metaToken||'';}
+function getMetaAccount(){return DB.metaAccount||'';}
+
+// Privacy mode
+let PRIVACY_ON = false;
+function togglePrivacy(){
+  PRIVACY_ON=!PRIVACY_ON;
+  document.body.classList.toggle('privacy-on',PRIVACY_ON);
+  const btn=document.getElementById('priv-btn');
+  const lbl=document.getElementById('priv-label');
+  const ico=document.getElementById('priv-icon');
+  btn.classList.toggle('on',PRIVACY_ON);
+  lbl.textContent=PRIVACY_ON?'Ocultando':'Privacidade';
+  ico.innerHTML=PRIVACY_ON
+    ?'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>'
+    :'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
 
 async function loadFromSupabase(){
   try{
@@ -259,9 +353,14 @@ function setSyncStatus(s){
   el.title=s==='ok'?'Salvo na nuvem':s==='sync'?'Sincronizando...':'Erro ao sincronizar';
   el.style.background=s==='ok'?'var(--green)':s==='sync'?'var(--gold)':'var(--coral)';
 }
-// DB inicializado pelo initApp()
 function loadLocal(){try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r));}catch(e){}return{cotacaoPadrao:5,produtos:[]};}
-function migrate(d){d.produtos=d.produtos||[];d.produtos.forEach(p=>{p.hotmartNomes=p.hotmartNomes||[];p.receita=p.receita||{};p.campanhas=p.campanhas||[];p.campanhas.forEach(c=>{c.anuncios=c.anuncios||[];});});return d;}
+function migrate(d){
+  d.produtos=d.produtos||[];
+  d.produtos.forEach(p=>{p.hotmartNomes=p.hotmartNomes||[];p.receita=p.receita||{};p.campanhas=p.campanhas||[];
+    p.campanhas.forEach(c=>{c.anuncios=c.anuncios||[];});
+  });
+  return d;
+}
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
   setSyncStatus('sync');
@@ -271,13 +370,14 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 
 /* ---------- format ---------- */
 const fBRL=v=>isFinite(v)?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'R$ 0,00';
+const fUSD=v=>isFinite(v)?'$ '+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'$ 0.00';
 const fPct=v=>isFinite(v)?(v*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—';
 const fRoas=v=>isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'x':'—';
 const fNum=v=>(v||0).toLocaleString('pt-BR');
 const fDate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y;};
+const fROI=v=>isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 
 /* ---------- calc ---------- */
-// creative entry = cost+funnel (Meta). campaign/produto revenue comes from produto.receita (Hotmart)
 function calcEntry(e){
   const inv=+e.investimento||0, cl=+e.cliques||0, pv=+e.pageview||0, ck=+e.checkout||0;
   return {investimento:inv,cliques:cl,pageview:pv,checkout:ck,metaSales:+e.metaSales||0,
@@ -299,7 +399,6 @@ function aggReceita(prod,from,to){
 }
 function prodEntries(prod){const out=[];prod.campanhas.forEach(c=>c.anuncios.forEach(a=>a.entradas.forEach(e=>out.push(e))));return out;}
 function prodEntriesFiltered(prod,from,to){return prodEntries(prod).filter(e=>(!from||e.data>=from)&&(!to||e.data<=to));}
-// full product metrics over period
 function prodMetrics(prod,from,to){
   const sp=aggSpend(prodEntriesFiltered(prod,from,to));
   const rv=aggReceita(prod,from,to);
@@ -308,15 +407,24 @@ function prodMetrics(prod,from,to){
 }
 
 /* ---------- state ---------- */
-let TAB='painel',GROUP='produto',SEL_PROD=null,nav={produtoId:null,campanhaId:null,anuncioId:null};
-function setTab(t){TAB=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+let TAB='painel',GROUP='produto',SEL_PROD=null,SEL_CR_PROD=null,nav={produtoId:null,campanhaId:null,anuncioId:null};
+
+function setTab(t){
+  TAB=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.getElementById('view-painel').classList.toggle('hidden',t!=='painel');
   document.getElementById('view-estrutura').classList.toggle('hidden',t!=='estrutura');
-  t==='painel'?renderPainel():renderEstrutura();}
+  document.getElementById('view-criativos').classList.toggle('hidden',t!=='criativos');
+  if(t==='painel')renderPainel();
+  else if(t==='estrutura')renderEstrutura();
+  else if(t==='criativos'){buildCrProdMS();renderCriativos();}
+}
+
 /* ---------- meses rápidos ---------- */
 const MESES_PT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 function initMesButtons(){for(let i=2;i<=4;i++){const el=document.getElementById('mes-'+i);if(el){const d=new Date();d.setMonth(d.getMonth()-(i-1));el.textContent=MESES_PT[d.getMonth()]+' '+String(d.getFullYear()).slice(2);}}}
 function setMesRapido(offset){const d=new Date();d.setMonth(d.getMonth()+offset);const y=d.getFullYear(),m=d.getMonth();const from=new Date(y,m,1),to=new Date(y,m+1,0);document.getElementById('f-from').value=from.toISOString().slice(0,10);document.getElementById('f-to').value=to.toISOString().slice(0,10);renderPainel();}
+
 /* ---------- gráfico ---------- */
 let chartInst=null;
 function renderChart(prods,from,to){
@@ -340,13 +448,14 @@ function renderChart(prods,from,to){
     scales:{x:{ticks:{color:'#5e779b',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(74,140,210,.08)'}},
       y:{ticks:{color:'#5e779b',font:{family:'JetBrains Mono',size:10},callback:v=>fBRL(v)},grid:{color:'rgba(74,140,210,.08)'}}}
   }});}
+
 /* ---------- busca ---------- */
 function getSearch(){const el=document.getElementById('search-input');return el?el.value.trim().toLowerCase():'';}
 function matchSearch(s,q){return!q||s.toLowerCase().includes(q);}
 function setGroup(g){GROUP=g;document.querySelectorAll('#grp button').forEach(b=>b.classList.toggle('on',b.dataset.g===g));renderPainel();}
 function getRange(){return[document.getElementById('f-from').value,document.getElementById('f-to').value];}
 
-/* ---------- multiselect ---------- */
+/* ---------- multiselect painel ---------- */
 function buildMS(items,selSet,onChange){
   const el=document.getElementById('ms-prod');
   el.innerHTML=`<div class="ms-toggle"><span>${selSet?selSet.size+' selecionado(s)':'Todos'}</span><span class="cnt">${selSet?selSet.size:items.length}</span></div>
@@ -360,6 +469,21 @@ function buildMS(items,selSet,onChange){
 }
 document.addEventListener('click',()=>document.querySelectorAll('.ms-pop').forEach(p=>p.classList.remove('open')));
 function refreshFilters(){buildMS(DB.produtos,SEL_PROD,s=>{SEL_PROD=s;renderPainel();});}
+
+/* ---------- multiselect criativos ---------- */
+function buildCrProdMS(){
+  const el=document.getElementById('ms-cr-prod');if(!el)return;
+  const items=DB.produtos;
+  const selSet=SEL_CR_PROD;
+  el.innerHTML=`<div class="ms-toggle"><span>${selSet?selSet.size+' selecionado(s)':'Todos'}</span><span class="cnt">${selSet?selSet.size:items.length}</span></div>
+   <div class="ms-pop"><div class="ms-head"><button data-all>Todos</button><button data-none>Nenhum</button></div>
+   ${items.map(i=>`<label class="ms-item"><input type="checkbox" value="${i.id}" ${(!selSet||selSet.has(i.id))?'checked':''}><span>${esc(i.nome)}</span></label>`).join('')||'<div style="padding:10px;color:#5e779b;font-size:.82rem">Nenhum produto</div>'}</div>`;
+  const pop=el.querySelector('.ms-pop');
+  el.querySelector('.ms-toggle').onclick=e=>{e.stopPropagation();document.querySelectorAll('.ms-pop').forEach(p=>{if(p!==pop)p.classList.remove('open')});pop.classList.toggle('open');};
+  pop.querySelectorAll('input').forEach(c=>c.onchange=()=>{const ch=[...pop.querySelectorAll('input:checked')].map(x=>x.value);SEL_CR_PROD=ch.length===items.length?null:new Set(ch);renderCriativos();});
+  pop.querySelector('[data-all]').onclick=()=>{SEL_CR_PROD=null;renderCriativos();buildCrProdMS();};
+  pop.querySelector('[data-none]').onclick=()=>{SEL_CR_PROD=new Set();renderCriativos();buildCrProdMS();};
+}
 
 /* ---------- PAINEL ---------- */
 const KPI=[
@@ -377,14 +501,12 @@ const SUB=[
 ];
 function lucroColor(v){return v>0?'pos':v<0?'neg':'';}
 function roasColor(v){return v>1?'pos':v>0&&v<1?'neg':'';}
-// alias para compatibilidade com chamadas de lucro em stats genéricos
 function roiColor(v){return v>0?'pos':v<0?'neg':'';}
 
 function renderPainel(){
   refreshFilters();
   const[from,to]=getRange();
   const prods=DB.produtos.filter(p=>!SEL_PROD||SEL_PROD.has(p.id));
-  // KPIs: revenue from products (whole), spend summed
   const tot={investimento:0,cliques:0,pageview:0,checkout:0,metaSales:0,retorno:0,pp:0,ob:0};
   prods.forEach(p=>{const m=prodMetrics(p,from,to);
     tot.investimento+=m.investimento;tot.cliques+=m.cliques;tot.pageview+=m.pageview;tot.checkout+=m.checkout;tot.metaSales+=m.metaSales;
@@ -395,16 +517,13 @@ function renderPainel(){
   document.getElementById('kpis').innerHTML=KPI.map(d=>{let cls=d.k==='lucro'?lucroColor(tot.lucro):d.k==='roi'?roasColor(tot.roi):'';
     return `<div class="panel kpi"><div class="ico" style="background:${d.c}22;border:1px solid ${d.c}55"><svg viewBox="0 0 24 24" fill="none" stroke="${d.c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${d.ico}</svg></div><div class="lab">${d.lab}</div><div class="val ${cls}">${d.fmt(tot[d.k])}</div></div>`;}).join('');
   document.getElementById('subkpis').innerHTML=SUB.map(d=>`<div class="panel skpi"><div class="lab">${d.lab}</div><div class="val">${d.fmt(tot[d.k])}</div></div>`).join('');
-
   document.getElementById('period-label').textContent=(from||to)?`${from?fDate(from):'início'} → ${to?fDate(to):'hoje'}`:'todo o período';
   document.getElementById('grp-title').textContent=GROUP==='produto'?'Por produto':GROUP==='campanha'?'Por campanha (lado de tráfego)':'Por anúncio (lado de tráfego)';
   renderChart(prods,from,to);
-
   const note=document.getElementById('grp-note');
   note.innerHTML = GROUP==='produto'
     ? `<div class="note">A <b>receita</b>, as <b>aquisições</b> e os <b>order bumps</b> vêm da Hotmart amarrados ao produto. O investimento e o funil vêm do Meta. O ROI e o CPA são reais.</div>`
     : `<div class="note">Aqui você vê o lado operacional do tráfego por ${GROUP}: gasto, cliques e funil do Meta, mais as vendas que o <b>Meta marcou</b> (só uma parte do real). A receita fiel fica no nível do <b>produto</b>, porque a Hotmart não separa a venda por campanha ou criativo.</div>`;
-
   if(GROUP==='produto')renderPainelProduto(prods,from,to);
   else renderPainelTrafego(prods,from,to);
 }
@@ -414,11 +533,10 @@ function renderPainelProduto(prods,from,to){
   if(!prods.length){document.getElementById('painel-tbl').innerHTML=head+emptyRow(11);return;}
   const rows=prods.map(p=>({p,m:prodMetrics(p,from,to)})).sort((a,b)=>b.m.lucro-a.m.lucro);
   let body='<tbody>'+rows.map(({p,m})=>`<tr class="clickable" onclick="goNav('${p.id}',null,null)">
-    <td><div class="name-cell">${esc(p.nome)}<span class="meta">${p.campanhas.length} campanha(s)</span></div></td>
+    <td><div class="name-cell"><span class="mask-name">${esc(p.nome)}</span><span class="meta">${p.campanhas.length} campanha(s)</span></div></td>
     <td>${fBRL(m.investimento)}</td><td>${fBRL(m.retorno)}</td><td class="${lucroColor(m.lucro)}">${fBRL(m.lucro)}</td>
     <td><span class="roi-badge ${roasColor(m.roi)}" style="background:${m.roi>1?'rgba(52,230,176,.13)':m.roi>0?'rgba(255,97,130,.13)':'rgba(60,130,200,.13)'}">${fRoas(m.roi)}</span></td>
     <td>${fBRL(m.cpc)}</td><td>${fBRL(m.cpa)}</td><td>${fNum(m.cliques)}</td><td>${fNum(m.pp)}</td><td>${fNum(m.ob)}</td><td>${fNum(m.metaSales)}</td></tr>`).join('');
-  const T=rows.reduce((s,{m})=>{for(let k in m)s[k]=(s[k]||0)+(isFinite(m[k])?0:0);return s;},{});
   const tt={investimento:0,retorno:0,cliques:0,pp:0,ob:0,metaSales:0};rows.forEach(({m})=>{tt.investimento+=m.investimento;tt.retorno+=m.retorno;tt.cliques+=m.cliques;tt.pp+=m.pp;tt.ob+=m.ob;tt.metaSales+=m.metaSales;});
   const tl=tt.retorno-tt.investimento;
   body+=`<tr class="row-total"><td>Total · ${rows.length} produto(s)</td><td>${fBRL(tt.investimento)}</td><td>${fBRL(tt.retorno)}</td>
@@ -440,7 +558,7 @@ function renderPainelTrafego(prods,from,to){
   if(!filt.length){document.getElementById('painel-tbl').innerHTML=head+emptyRow(9);return;}
   const rows=filt.map(g=>({g,a:aggSpend(g.entries)})).sort((x,y)=>y.a.investimento-x.a.investimento);
   let body='<tbody>'+rows.map(({g,a})=>`<tr class="clickable" onclick="goNav('${g.nav[0]}','${g.nav[1]}',${g.nav[2]?`'${g.nav[2]}'`:'null'})">
-    <td><div class="name-cell">${esc(g.label)}<span class="meta">${esc(g.sub)}</span></div></td>
+    <td><div class="name-cell"><span class="mask-name">${esc(g.label)}</span><span class="meta mask-name">${esc(g.sub)}</span></div></td>
     <td>${fBRL(a.investimento)}</td><td>${fBRL(a.cpc)}</td><td>${fNum(a.cliques)}</td><td>${fNum(a.pageview)}</td><td>${fPct(a.connect)}</td><td>${fNum(a.checkout)}</td><td>${fPct(a.taxaCheckout)}</td><td>${fNum(a.metaSales)}</td></tr>`).join('');
   const T=aggSpend(filt.flatMap(g=>g.entries));
   body+=`<tr class="row-total"><td>Total · ${rows.length}</td><td>${fBRL(T.investimento)}</td><td>${fBRL(T.cpc)}</td><td>${fNum(T.cliques)}</td><td>${fNum(T.pageview)}</td><td>${fPct(T.connect)}</td><td>${fNum(T.checkout)}</td><td>${fPct(T.taxaCheckout)}</td><td>${fNum(T.metaSales)}</td></tr></tbody>`;
@@ -449,7 +567,7 @@ function renderPainelTrafego(prods,from,to){
 function emptyRow(cols){return `<tbody><tr><td colspan="${cols}"><div class="empty" style="padding:46px 0"><div class="big">Nenhum dado no filtro atual</div>Importe planilhas do Meta e da Hotmart ou ajuste o período.</div></td></tr></tbody>`;}
 function goNav(pid,cid,aid){TAB='estrutura';nav={produtoId:pid,campanhaId:cid,anuncioId:aid};
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab==='estrutura'));
-  document.getElementById('view-painel').classList.add('hidden');document.getElementById('view-estrutura').classList.remove('hidden');
+  document.getElementById('view-painel').classList.add('hidden');document.getElementById('view-estrutura').classList.remove('hidden');document.getElementById('view-criativos').classList.add('hidden');
   renderEstrutura();window.scrollTo({top:0,behavior:'smooth'});}
 function clearFilters(){document.getElementById('f-from').value='';document.getElementById('f-to').value='';SEL_PROD=null;renderPainel();}
 
@@ -476,7 +594,7 @@ function renderRoot(){
   const q=getSearch();
   let cards=DB.produtos.filter(p=>matchSearch(p.nome,q)).map(p=>{const m=prodMetrics(p,null,null);
     return `<div class="panel tcard" onclick="nav.produtoId='${p.id}';renderEstrutura()">
-      <div class="tc-top"><div><h3>${esc(p.nome)}</h3><div class="tc-sub">${p.campanhas.length} campanha(s) · ${Object.keys(p.receita||{}).length} dia(s) de venda</div></div>
+      <div class="tc-top"><div><h3 class="mask-name">${esc(p.nome)}</h3><div class="tc-sub">${p.campanhas.length} campanha(s) · ${Object.keys(p.receita||{}).length} dia(s) de venda</div></div>
       <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editProduto('${p.id}')`)}${delBtn(`delProduto('${p.id}')`)}</div></div>
       <div class="tc-stats">${stat('Investido',fBRL(m.investimento))}${stat('Receita',fBRL(m.retorno))}${stat('Lucro',fBRL(m.lucro),lucroColor(m.lucro))}${stat('ROAS',fRoas(m.roi),roasColor(m.roi))}</div></div>`;}).join('');
   cards+=`<div class="panel tcard add-card" onclick="addProduto()"><div style="text-align:center"><div class="plus">+</div><span>Novo Produto</span></div></div>`;
@@ -493,7 +611,6 @@ function renderProduto(p){
      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
        ${stat('Investido (Meta)',fBRL(m.investimento))}${stat('Receita (Hotmart)',fBRL(m.retorno))}${stat('Lucro',fBRL(m.lucro),lucroColor(m.lucro))}${stat('ROAS',fRoas(m.roi),roasColor(m.roi))}${stat('CPA',fBRL(m.cpa))}${stat('Aquisições',fNum(m.pp))}${stat('Order Bumps',fNum(m.ob))}${stat('Vendas Meta',fNum(m.metaSales))}</div>
      <div class="note" style="margin:14px 0 0">Vinculado na Hotmart a: ${(p.hotmartNomes&&p.hotmartNomes.length)?p.hotmartNomes.map(esc).join(', '):'<i>nenhum produto vinculado ainda. Importe a Hotmart para vincular.</i>'}</div></div>`;
-  // receita por dia
   const dias=Object.keys(p.receita||{}).sort();
   let rec=`<div class="panel" style="padding:6px 0;margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;padding:16px 22px 8px"><div class="section-title"><span class="dot"></span> Receita por dia (Hotmart)</div><button class="btn btn-sm btn-ghost" onclick="addReceita('${p.id}')">+ Dia manual</button></div><div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Receita</th><th>Aquisições</th><th>Order Bumps</th><th></th></tr></thead><tbody>`;
   if(!dias.length)rec+=`<tr><td colspan="5"><div class="empty" style="padding:30px 0">Sem vendas importadas. Use <b style="color:#37e8ec">Importar Hotmart</b>.</div></td></tr>`;
@@ -503,7 +620,7 @@ function renderProduto(p){
   rec+=`</tbody></table></div></div>`;
   let cards=p.campanhas.filter(c=>matchSearch(c.nome,getSearch())).map(c=>{const a=aggSpend(prodEntries({campanhas:[c]}));
     return `<div class="panel tcard" onclick="nav.campanhaId='${c.id}';renderEstrutura()">
-     <div class="tc-top"><div><h3>${esc(c.nome)}</h3><div class="tc-sub">${c.anuncios.length} anúncio(s)</div></div>
+     <div class="tc-top"><div><h3 class="mask-name">${esc(c.nome)}</h3><div class="tc-sub">${c.anuncios.length} anúncio(s)</div></div>
      <div class="tc-actions" onclick="event.stopPropagation()">${editBtn(`editCampanha('${p.id}','${c.id}')`)}${delBtn(`delCampanha('${p.id}','${c.id}')`)}</div></div>
      <div class="tc-stats">${stat('Investido',fBRL(a.investimento))}${stat('Cliques',fNum(a.cliques))}${stat('CPC',fBRL(a.cpc))}${stat('Vendas Meta',fNum(a.metaSales))}</div></div>`;}).join('');
   cards+=`<div class="panel tcard add-card" onclick="addCampanha('${p.id}')"><div style="text-align:center"><div class="plus">+</div><span>Nova Campanha</span></div></div>`;
@@ -536,7 +653,7 @@ function renderAnuncio(p,c,a){
 const editBtn=(fn,inline)=>`<span class="mini" ${inline?'style="display:inline-grid"':''} onclick="${fn}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2 2 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>`;
 const delBtn=(fn,inline)=>`<span class="mini del" ${inline?'style="display:inline-grid;margin-left:4px"':''} onclick="${fn}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></span>`;
 
-/* ---------- modals base ---------- */
+/* ---------- CRUD ---------- */
 const ov=document.getElementById('overlay'),md=document.getElementById('modal');
 function closeModal(){ov.classList.remove('open');md.innerHTML='';md.classList.remove('wide');}
 ov.onclick=e=>{if(e.target===ov)closeModal();};
@@ -552,8 +669,6 @@ function confirmDel(msg,onYes){openModal(`<div class="modal-head"><h2>Confirmar<
    <p style="color:var(--ink-mut);font-size:.95rem;line-height:1.55">${msg}</p>
    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-danger" id="c-yes">Excluir</button></div>`);
   md.querySelector('#c-yes').onclick=()=>{onYes();closeModal();};}
-
-/* CRUD produto/campanha/anuncio */
 function addProduto(){nameModal('Novo <span class="accent">Produto</span>','',n=>{DB.produtos.push({id:uid(),nome:n,hotmartNomes:[],campanhas:[],receita:{}});save();toast('Produto criado');renderEstrutura();});}
 function editProduto(id){const p=findProd(id);nameModal('Renomear produto',p.nome,n=>{p.nome=n;save();renderEstrutura();});}
 function delProduto(id){confirmDel('Excluir este produto, suas campanhas e a receita importada?',()=>{DB.produtos=DB.produtos.filter(p=>p.id!==id);save();toast('Produto excluído');renderEstrutura();});}
@@ -563,7 +678,6 @@ function delCampanha(pid,cid){confirmDel('Excluir esta campanha e seus anúncios
 function addAnuncio(pid,cid){const c=findCamp(findProd(pid),cid);nameModal('Novo <span class="accent">Anúncio</span>','',n=>{c.anuncios.push({id:uid(),nome:n,entradas:[]});save();toast('Anúncio criado');renderEstrutura();});}
 function editAnuncio(pid,cid,aid){const a=findAnun(findCamp(findProd(pid),cid),aid);nameModal('Renomear anúncio',a.nome,n=>{a.nome=n;save();renderEstrutura();});}
 function delAnuncio(pid,cid,aid){confirmDel('Excluir este anúncio e seus dias?',()=>{const c=findCamp(findProd(pid),cid);c.anuncios=c.anuncios.filter(a=>a.id!==aid);save();toast('Anúncio excluído');renderEstrutura();});}
-
 function entradaModal(title,e,onSave){
   const v=k=>e&&e[k]!=null?e[k]:'';
   openModal(`<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">✕</button></div>
@@ -582,7 +696,6 @@ function entradaModal(title,e,onSave){
 function addEntrada(pid,cid,aid){const a=findAnun(findCamp(findProd(pid),cid),aid);entradaModal('Novo <span class="accent">dia</span>',null,d=>{a.entradas.push({id:uid(),...d});save();toast('Dia salvo');renderEstrutura();});}
 function editEntrada(pid,cid,aid,eid){const a=findAnun(findCamp(findProd(pid),cid),aid);const e=a.entradas.find(x=>x.id===eid);entradaModal('Editar <span class="accent">dia</span>',e,d=>{Object.assign(e,d);save();toast('Atualizado');renderEstrutura();});}
 function delEntrada(pid,cid,aid,eid){confirmDel('Excluir este dia?',()=>{const a=findAnun(findCamp(findProd(pid),cid),aid);a.entradas=a.entradas.filter(x=>x.id!==eid);save();toast('Excluído');renderEstrutura();});}
-
 function receitaModal(title,d,v,onSave){
   openModal(`<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">✕</button></div>
    <div class="form-grid"><div class="fg"><label>Data</label><input type="date" id="r-data" value="${d||new Date().toISOString().slice(0,10)}" ${d?'disabled':''}></div>
@@ -657,7 +770,7 @@ function handleMetaFile(file){
       checkout:colIndex(H,[{inc:'finalizacoes de compra'}]),
       resultados:colIndex(H,[{exact:'resultados'}])
     };
-    if(ci.anuncio<0||ci.valor<0||ci.data<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas (Nome do anúncio, Valor usado, Início dos relatórios). Confirme que é o relatório de anúncios do Meta.</div>';return;}
+    if(ci.anuncio<0||ci.valor<0||ci.data<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas. Confirme que é o relatório de anúncios do Meta.</div>';return;}
     const data={};let count=0,creatives=new Set();
     for(let i=1;i<rows.length;i++){const r=rows[i];const name=r[ci.anuncio];if(name==null||name.toString().trim()==='')continue;
       const inv=+r[ci.valor]||0;const cl=ci.cliques>=0?+r[ci.cliques]||0:0;
@@ -669,7 +782,6 @@ function handleMetaFile(file){
         metaSales:ci.resultados>=0?+r[ci.resultados]||0:0};
       count++;}
     if(!count){status.innerHTML='<div class="note">Nenhuma linha com gasto encontrada.</div>';return;}
-    // resolve produto + campanha
     let pid=md.querySelector('#im-prod').value;
     if(pid==='__new'){const nm=(md.querySelector('#im-newprod').value||'Novo produto').trim();const np={id:uid(),nome:nm,hotmartNomes:[],campanhas:[],receita:{}};DB.produtos.push(np);pid=np.id;}
     const p=findProd(pid);
@@ -692,7 +804,7 @@ function handleMetaFile(file){
 let HOT_PENDING=null;
 function openImportHotmart(){
   openModal(`<div class="modal-head"><h2>Importar <span class="accent">Hotmart</span></h2><button class="close-x" onclick="closeModal()">✕</button></div>
-   <div class="note">Cada produto é contado pelas vendas dele próprio. Quando dois produtos foram comprados na mesma sessão (mesmo comprador, até <b>1h</b> de diferença), cada um conta a venda dele e marca o outro como order bump. A receita é a do próprio produto, em reais (valor recebido convertido). Conta só vendas <b>Aprovado</b> e <b>Completo</b>.</div>
+   <div class="note">Cada produto é contado pelas vendas dele próprio. Quando dois produtos foram comprados na mesma sessão (mesmo comprador, até <b>1h</b> de diferença), cada um conta a venda dele e marca o outro como order bump. A receita é a do próprio produto, em reais. Conta só vendas <b>Aprovado</b> e <b>Completo</b>.</div>
    <div class="dz" id="ih-dz"><b>Clique para escolher</b> ou arraste o relatório de vendas (.xls) aqui<input type="file" accept=".xls,.xlsx" id="ih-file" style="display:none"></div>
    <div id="ih-status" style="margin-top:14px"></div>
    <div class="modal-foot" id="ih-foot"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button></div>`);
@@ -717,47 +829,47 @@ function handleHotFile(file){
       nome:colIndex(H,[{exact:'nome'}]),
       doc:colIndex(H,[{exact:'documento'}]),
       email:colIndex(H,[{exact:'email'}]),
-      recebido:colIndex(H,[{inc:'valor que voce recebeu convertido'}])
+      recebido:colIndex(H,[{inc:'valor que voce recebeu convertido'}]),
+      recebidoUSD:colIndex(H,[{inc:'valor que voce recebeu em usd'},{inc:'valor recebido usd'},{inc:'recebido usd'}])
     };
-    if(ci.produto<0||ci.dataVenda<0||ci.recebido<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas (Nome do Produto, Data de Venda, Valor que você recebeu convertido). Confirme que é o histórico de vendas da Hotmart.</div>';return;}
+    if(ci.produto<0||ci.dataVenda<0||ci.recebido<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas. Confirme que é o histórico de vendas da Hotmart.</div>';return;}
     const items=[];
     for(let i=1;i<rows.length;i++){const r=rows[i];if(r[ci.produto]==null)continue;
       const st=norm(r[ci.status]); if(ci.status>=0 && !(st==='aprovado'||st==='completo'))continue;
       const dRaw=(r[ci.dataVenda]||'').toString();
       const iso=toISO(dRaw); if(!iso)continue;
-      // datetime for clustering
       let dt; const mt=dRaw.match(/(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2}):(\d{2})/);
       if(mt)dt=new Date(+mt[3],+mt[2]-1,+mt[1],+mt[4],+mt[5],+mt[6]);
       else if(r[ci.dataVenda] instanceof Date)dt=r[ci.dataVenda];
       else dt=new Date(iso+'T00:00:00');
       const buyer=norm(r[ci.email])||norm(r[ci.doc])||norm(r[ci.nome])||('x'+i);
-      items.push({produto:(r[ci.produto]||'').toString().trim(),iso,dt,buyer,recebido:+r[ci.recebido]||0});
+      const recBRL=+r[ci.recebido]||0;
+      const recUSD=ci.recebidoUSD>=0?(+r[ci.recebidoUSD]||0):0;
+      items.push({produto:(r[ci.produto]||'').toString().trim(),iso,dt,buyer,recebido:recBRL,recebidoUSD:recUSD});
     }
     if(!items.length){status.innerHTML='<div class="note">Nenhuma venda aprovada encontrada.</div>';return;}
-    // group by buyer within 1h
     items.sort((a,b)=>a.buyer<b.buyer?-1:a.buyer>b.buyer?1:a.dt-b.dt);
     const WIN=3600*1000,orders=[];let cur=[],lb=null,ld=null;
     for(const it of items){if(lb!==null&&(it.buyer!==lb||(it.dt-ld)>WIN)){orders.push(cur);cur=[];}cur.push(it);lb=it.buyer;ld=it.dt;}
     if(cur.length)orders.push(cur);
-    // modelo híbrido: líder do pedido (mais caro) pega receita total + OBs;
-    // não-líderes contam como PP do próprio produto mas só com o próprio valor
     const byProd={};
     orders.forEach(o=>{
       const maxRec=Math.max(...o.map(x=>x.recebido));
       const leaderIdx=o.findIndex(x=>x.recebido===maxRec);
       const orderRev=o.reduce((s,x)=>s+x.recebido,0);
+      const orderRevUSD=o.reduce((s,x)=>s+x.recebidoUSD,0);
       o.forEach((it,idx)=>{
         const name=it.produto,isLeader=(idx===leaderIdx);
-        const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,leads:0,days:{}};
+        const P=byProd[name]=byProd[name]||{pp:0,ob:0,rev:0,revUSD:0,leads:0,days:{}};
         P.pp++;
-        const D=P.days[it.iso]=P.days[it.iso]||{retorno:0,pp:0,ob:0};
+        const D=P.days[it.iso]=P.days[it.iso]||{retorno:0,retornoUSD:0,pp:0,ob:0};
         D.pp++;
         if(isLeader){
-          P.leads++;P.ob+=o.length-1;P.rev+=orderRev;
-          D.retorno+=orderRev;D.ob+=o.length-1;
+          P.leads++;P.ob+=o.length-1;P.rev+=orderRev;P.revUSD+=orderRevUSD;
+          D.retorno+=orderRev;D.retornoUSD+=orderRevUSD;D.ob+=o.length-1;
         } else {
-          P.rev+=it.recebido;
-          D.retorno+=it.recebido;
+          P.rev+=it.recebido;P.revUSD+=it.recebidoUSD;
+          D.retorno+=it.recebido;D.retornoUSD+=it.recebidoUSD;
         }
       });
     });
@@ -768,7 +880,6 @@ function handleHotFile(file){
 function renderHotMapping(byProd){
   const status=md.querySelector('#ih-status');
   const all=Object.keys(byProd).sort((a,b)=>byProd[b].rev-byProd[a].rev);
-  // principais = lideram pelo menos um pedido; order bumps = só aparecem junto de outro produto
   const principais=all.filter(n=>byProd[n].leads>0);
   const bumps=all.filter(n=>byProd[n].leads===0);
   const prodOpts=p=>DB.produtos.map(pr=>`<option value="${pr.id}" ${autoMatch(p,pr)?'selected':''}>${esc(pr.nome)}</option>`).join('');
@@ -776,13 +887,12 @@ function renderHotMapping(byProd){
   const rowHtml=n=>`<div class="map-row"><div><div class="mp-name">${esc(n)}</div><div class="mp-meta">${byProd[n].pp} venda(s) · ${byProd[n].ob} OB · ${fBRL(byProd[n].rev)}</div></div>
       <select data-hot="${idxOf[n]}"><option value="__skip">Ignorar</option>${prodOpts(n)}<option value="__new">+ Criar com este nome</option></select></div>`;
   let html=`<div class="form-section" style="border:none;padding:0;margin:0 0 6px">Vincule cada produto principal a um produto do app</div>
-    <div class="note" style="margin:0 0 14px">Mostrando os <b>${principais.length} produto(s) principais</b>. Os order bumps comprados junto já entram somados dentro do principal, então não aparecem aqui pra você não contar em dobro.</div>`;
+    <div class="note" style="margin:0 0 14px">Mostrando os <b>${principais.length} produto(s) principais</b>. Os order bumps já entram somados dentro do principal.</div>`;
   html+=principais.map(rowHtml).join('');
   if(bumps.length){
     html+=`<div id="bumps-wrap" style="margin-top:6px"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('bumps-list').style.display=document.getElementById('bumps-list').style.display==='none'?'block':'none'">Mostrar ${bumps.length} produto(s) menores (order bumps)</button><div id="bumps-list" style="display:none;margin-top:10px">${bumps.map(rowHtml).join('')}</div></div>`;
   }
   status.innerHTML=html;
-  // padrão: principal que casa com um existente vem vinculado; resto em Ignorar
   all.forEach(n=>{const sel=status.querySelector(`select[data-hot="${idxOf[n]}"]`);if(!sel)return;const m=DB.produtos.find(pr=>autoMatch(n,pr));sel.value=(m&&byProd[n].leads>0)?m.id:'__skip';});
   md.querySelector('#ih-foot').innerHTML=`<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="applyHotMapping()">Aplicar importação</button>`;
 }
@@ -795,7 +905,6 @@ function autoMatch(hotName,prod){
 async function applyHotMapping(){
   const status=md.querySelector('#ih-status');
   const names=Object.keys(HOT_PENDING).sort((a,b)=>HOT_PENDING[b].rev-HOT_PENDING[a].rev);
-  // agrupa por produto-alvo (vários produtos da Hotmart podem apontar pro mesmo produto do app)
   const targets={};
   names.forEach((n,idx)=>{const sel=status.querySelector(`select[data-hot="${idx}"]`);if(!sel)return;const val=sel.value;if(val==='__skip')return;
     let p;
@@ -803,10 +912,12 @@ async function applyHotMapping(){
     else{p=findProd(val);if(!p)return;}
     if(!p.hotmartNomes)p.hotmartNomes=[];if(!p.hotmartNomes.some(x=>norm(x)===norm(n)))p.hotmartNomes.push(n);
     const t=targets[p.id]=targets[p.id]||{p,days:{}};
-    Object.entries(HOT_PENDING[n].days).forEach(([iso,v])=>{const d=t.days[iso]=t.days[iso]||{retorno:0,pp:0,ob:0};d.retorno+=v.retorno;d.pp+=v.pp;d.ob+=v.ob;});
+    Object.entries(HOT_PENDING[n].days).forEach(([iso,v])=>{
+      const d=t.days[iso]=t.days[iso]||{retorno:0,retornoUSD:0,pp:0,ob:0};
+      d.retorno+=v.retorno;d.retornoUSD+=v.retornoUSD||0;d.pp+=v.pp;d.ob+=v.ob;
+    });
   });
-  // sobrescreve a receita de cada produto nas datas importadas (não soma com dado antigo)
-  Object.values(targets).forEach(t=>Object.entries(t.days).forEach(([iso,v])=>{t.p.receita[iso]={retorno:v.retorno,pp:v.pp,ob:v.ob};}));
+  Object.values(targets).forEach(t=>Object.entries(t.days).forEach(([iso,v])=>{t.p.receita[iso]={retorno:v.retorno,retornoUSD:v.retornoUSD||0,pp:v.pp,ob:v.ob};}));
   HOT_PENDING=null;closeModal();SEL_PROD=null;
   try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
   setSyncStatus('sync');
@@ -815,26 +926,495 @@ async function applyHotMapping(){
   setTab('painel');
 }
 
+/* ---------- CRIATIVOS ---------- */
+function clearCrFiltros(){
+  document.getElementById('cr-from').value='';
+  document.getElementById('cr-to').value='';
+  SEL_CR_PROD=null;
+  buildCrProdMS();
+  renderCriativos();
+}
+
+function getCrRange(){
+  return[document.getElementById('cr-from').value,document.getElementById('cr-to').value];
+}
+
+function getCotacao(){
+  return parseFloat(document.getElementById('cr-cotacao').value)||5;
+}
+
+// Busca receita da Hotmart por produto e data, distribuída por criativo se necessário
+function getCrReceita(prod, anuncioId, data, allAnuncios){
+  const rv = prod.receita[data];
+  if(!rv) return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
+
+  // total de vendas Meta neste dia para este produto
+  const anunciosNoDia = allAnuncios.filter(a=>{
+    return a.entradas.some(e=>e.data===data && (+e.investimento||0)>0);
+  });
+  const totalMetaSales = anunciosNoDia.reduce((s,a)=>{
+    const e=a.entradas.find(x=>x.data===data);
+    return s+(e?+e.metaSales||0:0);
+  },0);
+  const totalInvest = anunciosNoDia.reduce((s,a)=>{
+    const e=a.entradas.find(x=>x.data===data);
+    return s+(e?+e.investimento||0:0);
+  },0);
+
+  if(totalMetaSales===0 && totalInvest===0){
+    return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
+  }
+
+  const minhaSales = (()=>{const e=allAnuncios.find(a=>a.id===anuncioId)?.entradas.find(x=>x.data===data);return e?+e.metaSales||0:0;})();
+  const meuInvest = (()=>{const e=allAnuncios.find(a=>a.id===anuncioId)?.entradas.find(x=>x.data===data);return e?+e.investimento||0:0;})();
+
+  // distribui pelas vendas Meta se houver; se não, distribui pelo investimento
+  let peso = 0;
+  let estimado = false;
+  if(totalMetaSales > 0){
+    peso = minhaSales / totalMetaSales;
+  } else {
+    peso = totalInvest > 0 ? meuInvest / totalInvest : 1 / Math.max(anunciosNoDia.length, 1);
+    estimado = true;
+  }
+
+  const totalHotmartPP = rv.pp || 0;
+  const totalHotmartOB = rv.ob || 0;
+  const totalHotmartBRL = rv.retorno || 0;
+  const totalHotmartUSD = rv.retornoUSD || 0;
+
+  // diferença: vendas Hotmart vs Meta
+  const totalMetaConf = totalMetaSales;
+  if(totalHotmartPP > totalMetaConf && totalMetaSales > 0){
+    // há vendas não rastreadas: distribuição proporcional
+    estimado = true;
+  }
+
+  return {
+    retornoUSD: totalHotmartUSD * peso,
+    retornoBRL: totalHotmartBRL * peso,
+    pp: Math.round(totalHotmartPP * peso),
+    ob: Math.round(totalHotmartOB * peso),
+    estimado
+  };
+}
+
+// Infere ticket do produto pelo valor médio das vendas no dia ou no último dia com venda
+function inferTicket(prod, anuncioId, data, allAnuncios, cotacao){
+  const rv = prod.receita[data];
+  if(rv && rv.pp > 0 && rv.retornoUSD > 0){
+    const avg = rv.retornoUSD / rv.pp;
+    return snapTicket(avg);
+  }
+  // busca no último dia com venda
+  const dias = Object.keys(prod.receita||{}).filter(d=>d<=data&&prod.receita[d].pp>0).sort().reverse();
+  for(const d of dias){
+    const r=prod.receita[d];
+    if(r && r.pp>0 && r.retornoUSD>0) return snapTicket(r.retornoUSD/r.pp);
+  }
+  return null;
+}
+
+function snapTicket(avg){
+  const tiers=[6.9,9.9,12.9,14.9];
+  let best=tiers[0], bestDiff=Math.abs(avg-tiers[0]);
+  for(const t of tiers){const d=Math.abs(avg-t);if(d<bestDiff){bestDiff=d;best=t;}}
+  return best;
+}
+
+function renderCriativos(){
+  const body = document.getElementById('cr-body');
+  const [from,to] = getCrRange();
+  const cotacao = getCotacao();
+  const prods = DB.produtos.filter(p=>!SEL_CR_PROD||SEL_CR_PROD.has(p.id));
+
+  if(!prods.length){
+    body.innerHTML=`<div class="cr-empty"><div class="big">Nenhum produto encontrado</div>Importe dados do Meta ou Hotmart.</div>`;
+    return;
+  }
+
+  // agrupa por produto > campanha > anuncio
+  let html='';
+
+  prods.forEach(prod=>{
+    prod.campanhas.forEach(camp=>{
+      if(!camp.anuncios.length) return;
+
+      // filtro de datas por campanha
+      const anunciosFilt = camp.anuncios.filter(an=>{
+        return an.entradas.some(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques));
+      });
+      if(!anunciosFilt.length) return;
+
+      html+=`<div class="camp-block">
+        <div class="camp-header" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <span class="dot" style="flex:none"></span>
+          <h3 class="mask-name">${esc(camp.nome)}</h3>
+          <span class="camp-meta mask-name">${esc(prod.nome)}</span>
+          <span class="camp-chevron">▾</span>
+        </div>
+        <div class="camp-body">`;
+
+      anunciosFilt.forEach((an,anIdx)=>{
+        const adLabel = an.nome;
+        const isAtivo = true; // da estrutura local; seria ACTIVE se viesse do Meta
+        const entradas = an.entradas
+          .filter(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques))
+          .sort((a,b)=>a.data.localeCompare(b.data));
+
+        if(!entradas.length) return;
+
+        // totais do criativo
+        let totInv=0,totRetUSD=0,totRetBRL=0,totLucro=0,totCl=0,totPV=0,totCK=0,totPP=0,totOB=0;
+
+        let rowsHtml='';
+        entradas.forEach(e=>{
+          const inv=+e.investimento||0;
+          const cl=+e.cliques||0;
+          const pv=+e.pageview||0;
+          const ck=+e.checkout||0;
+
+          const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
+          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao);
+          const retUSD=rec.retornoUSD;
+          const retBRL=rec.retornoBRL>0?rec.retornoBRL:retUSD*cotacao;
+          const lucro=retBRL-inv;
+          const roi=inv>0?retBRL/inv:0;
+          const cpc=cl>0?inv/cl:0;
+          const connect=cl>0?pv/cl:0;
+          const txCK=pv>0?ck/pv:0;
+          const cpa=rec.pp>0?inv/rec.pp:0;
+
+          totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;totLucro+=lucro;
+          totCl+=cl;totPV+=pv;totCK+=ck;totPP+=rec.pp;totOB+=rec.ob;
+
+          const estTag=rec.estimado?'<span class="est-tag">est.</span>':'';
+
+          rowsHtml+=`<tr>
+            <td>${fDate(e.data)}</td>
+            <td>${fBRL(inv>0?50:0)}</td>
+            <td>${ticket?'$ '+ticket.toFixed(2):'—'}</td>
+            <td>${fBRL(inv)}</td>
+            <td>${retUSD>0?fUSD(retUSD):'—'}${estTag}</td>
+            <td>${retBRL>0?fBRL(retBRL):'—'}${estTag}</td>
+            <td class="${lucro>0?'pos':lucro<0?'neg':''}">${retBRL>0?fBRL(lucro):'—'}</td>
+            <td>${retBRL>0&&inv>0?fROI(roi):'—'}</td>
+            <td>${cl>0?fBRL(cpc):'—'}</td>
+            <td>${fNum(cl)}</td>
+            <td>${fNum(pv)}</td>
+            <td>${pv>0?fPct(connect):'—'}</td>
+            <td>${fNum(ck)}</td>
+            <td>${pv>0?fPct(txCK):'—'}</td>
+            <td>${fNum(rec.pp)}</td>
+            <td>${fNum(rec.ob)}</td>
+            <td>${rec.pp>0?fBRL(cpa):'—'}</td>
+          </tr>`;
+        });
+
+        // linha de totais
+        const totROI=totInv>0?totRetBRL/totInv:0;
+        const totCPC=totCl>0?totInv/totCl:0;
+        const totConnect=totCl>0?totPV/totCl:0;
+        const totTxCK=totPV>0?totCK/totPV:0;
+        const totCPA=totPP>0?totInv/totPP:0;
+
+        rowsHtml+=`<tr class="row-sub">
+          <td>Total</td>
+          <td></td><td></td>
+          <td>${fBRL(totInv)}</td>
+          <td>${totRetUSD>0?fUSD(totRetUSD):'—'}</td>
+          <td>${totRetBRL>0?fBRL(totRetBRL):'—'}</td>
+          <td class="${totLucro>0?'pos':totLucro<0?'neg':''}">${totRetBRL>0?fBRL(totLucro):'—'}</td>
+          <td>${totRetBRL>0&&totInv>0?fROI(totROI):'—'}</td>
+          <td>${totCl>0?fBRL(totCPC):'—'}</td>
+          <td>${fNum(totCl)}</td>
+          <td>${fNum(totPV)}</td>
+          <td>${totPV>0?fPct(totConnect):'—'}</td>
+          <td>${fNum(totCK)}</td>
+          <td>${totPV>0?fPct(totTxCK):'—'}</td>
+          <td>${fNum(totPP)}</td>
+          <td>${fNum(totOB)}</td>
+          <td>${totPP>0?fBRL(totCPA):'—'}</td>
+        </tr>`;
+
+        html+=`<div class="cr-section">
+          <div class="cr-ad-header">
+            <span class="ad-name">${esc(adLabel)}</span>
+            <span class="ad-status ativo">ativo</span>
+          </div>
+          <div class="tbl-wrap">
+            <table class="cr-tbl">
+              <thead><tr>
+                <th>Data</th><th>Orçamento</th><th>Ticket</th><th>Investimento</th>
+                <th>Retorno US$</th><th>Retorno R$</th><th>Lucro</th><th>ROI</th>
+                <th>CPC</th><th>Cliques</th><th>PageView</th><th>Connect Rate</th>
+                <th>Checkout</th><th>Tx Checkout</th><th>PP</th><th>OB</th><th>CPA</th>
+              </tr></thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+      });
+
+      html+=`</div></div>`;
+    });
+  });
+
+  if(!html){
+    body.innerHTML=`<div class="cr-empty"><div class="big">Nenhum criativo no período selecionado</div>Ajuste os filtros ou importe dados do Meta.</div>`;
+    return;
+  }
+
+  body.innerHTML=html;
+}
+
+/* ---------- FETCH META CRIATIVOS (via API) ---------- */
+async function fetchMetaCriativos(){
+  if(!getMetaToken()||!getMetaAccount()){
+    toast('Configure o Token e a Conta do Meta nos Ajustes (⚙)',false);
+    openSettings();
+    return;
+  }
+  const statusEl=document.getElementById('cr-fetch-status');
+  statusEl.style.display='block';
+  statusEl.innerHTML=`<div class="cr-fetch-bar"><span class="loading-pulse"></span> Buscando campanhas e anúncios do Meta...</div>`;
+
+  const [from,to]=getCrRange();
+  const since=from||(new Date(Date.now()-30*86400000).toISOString().slice(0,10));
+  const until=to||(new Date().toISOString().slice(0,10));
+
+  try{
+    // busca campanhas
+    const campR=await fetch(
+      `https://graph.facebook.com/v19.0/act_${getMetaAccount()}/campaigns?fields=id,name,status,effective_status,daily_budget&access_token=${getMetaToken()}&limit=50`
+    );
+    const campData=await campR.json();
+    if(campData.error){throw new Error(campData.error.message);}
+
+    const camps=campData.data||[];
+    if(!camps.length){
+      statusEl.innerHTML=`<div class="cr-fetch-bar">Nenhuma campanha encontrada.</div>`;
+      return;
+    }
+
+    // busca insights de anúncios por dia
+    const insightsR=await fetch(
+      `https://graph.facebook.com/v19.0/act_${getMetaAccount()}/insights?fields=ad_id,ad_name,adset_id,campaign_id,campaign_name,spend,link_clicks,actions,action_values,impressions&level=ad&time_range={"since":"${since}","until":"${until}"}&time_increment=1&access_token=${getMetaToken()}&limit=500`
+    );
+    const insData=await insightsR.json();
+    if(insData.error){throw new Error(insData.error.message);}
+
+    const insights=insData.data||[];
+    let imported=0;
+
+    // mapeia cada insight para a estrutura do DB
+    insights.forEach(ins=>{
+      const campId=ins.campaign_id;
+      const campName=ins.campaign_name||campId;
+      const adName=ins.ad_name||ins.ad_id;
+      const iso=ins.date_start;
+      const inv=parseFloat(ins.spend)||0;
+
+      // pega cliques no link
+      const linkClicks=parseInt((ins.actions||[]).find(a=>a.action_type==='link_click')?.value||ins.link_clicks||'0');
+      // pageview
+      const pageview=parseInt((ins.actions||[]).find(a=>a.action_type==='landing_page_view')?.value||'0');
+      // checkout iniciado
+      const checkout=parseInt((ins.actions||[]).find(a=>a.action_type==='initiate_checkout')?.value||'0');
+      // compras atribuídas pelo Meta
+      const metaSales=parseInt((ins.actions||[]).find(a=>a.action_type==='purchase')?.value||'0');
+
+      if(inv===0&&linkClicks===0) return;
+
+      // encontra ou cria produto/campanha/anúncio no DB
+      // tenta associar pelo nome da campanha
+      let prod=DB.produtos.find(p=>p.campanhas.some(c=>norm(c.nome)===norm(campName)));
+      if(!prod){
+        // se não achar, associa ao primeiro produto ou cria um genérico
+        prod=DB.produtos[0];
+        if(!prod){prod={id:uid(),nome:'Produto',hotmartNomes:[],campanhas:[],receita:{}};DB.produtos.push(prod);}
+      }
+      let camp=prod.campanhas.find(c=>norm(c.nome)===norm(campName));
+      if(!camp){camp={id:uid(),nome:campName,anuncios:[]};prod.campanhas.push(camp);}
+      let an=camp.anuncios.find(a=>norm(a.nome)===norm(adName));
+      if(!an){an={id:uid(),nome:adName,entradas:[]};camp.anuncios.push(an);}
+      const ex=an.entradas.find(e=>e.data===iso);
+      const entry={id:uid(),data:iso,investimento:inv,cliques:linkClicks,pageview,checkout,metaSales};
+      if(ex)Object.assign(ex,entry);else an.entradas.push(entry);
+      imported++;
+    });
+
+    save();
+    toast(`Meta sincronizado: ${imported} registro(s)`);
+    statusEl.innerHTML=`<div class="cr-fetch-bar" style="border-color:var(--green);color:var(--green)">✓ ${imported} registro(s) importado(s) do Meta para o período ${fDate(since)} → ${fDate(until)}</div>`;
+    renderCriativos();
+    setTimeout(()=>{statusEl.style.display='none';},4000);
+  }catch(err){
+    statusEl.innerHTML=`<div class="cr-fetch-bar" style="border-color:var(--coral);color:var(--coral)">Erro ao buscar do Meta: ${err.message}</div>`;
+    toast('Erro ao buscar do Meta',false);
+  }
+}
+
+/* ---------- EXPORTAR PLANILHA (idêntico à planilha do mentor) ---------- */
+function exportCriativos(){
+  const [from,to]=getCrRange();
+  const cotacao=getCotacao();
+  const prods=DB.produtos.filter(p=>!SEL_CR_PROD||SEL_CR_PROD.has(p.id));
+  if(!prods.length){toast('Nenhum dado para exportar',false);return;}
+
+  const wb=XLSX.utils.book_new();
+
+  prods.forEach(prod=>{
+    prod.campanhas.forEach(camp=>{
+      const anunciosFilt=camp.anuncios.filter(an=>an.entradas.some(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques)));
+      if(!anunciosFilt.length) return;
+
+      const wsData=[];
+      // linha da cotação
+      wsData.push(['Cotação do dolar:','','',cotacao,'','Investimento','','','Retorno bruto','','','LUCRO','','','ROI','']);
+      wsData.push([]);
+
+      anunciosFilt.forEach((an,idx)=>{
+        const entradas=an.entradas
+          .filter(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques))
+          .sort((a,b)=>a.data.localeCompare(b.data));
+        if(!entradas.length) return;
+
+        // header do criativo
+        wsData.push([`CRIATIVO ${an.nome}`]);
+        wsData.push(['Data','Orçamento','Ticket','Investimento','Retorno - Dolar','Retorno - Real','Lucro','ROI','CPC','Clique no link','PageView','Connect rate','Checkout','Taxa de checkout','PP','OB','CPA']);
+
+        let totInv=0,totRetUSD=0,totRetBRL=0,totLucro=0,totCl=0,totPV=0,totCK=0,totPP=0,totOB=0;
+
+        entradas.forEach(e=>{
+          const inv=+e.investimento||0;
+          const cl=+e.cliques||0;
+          const pv=+e.pageview||0;
+          const ck=+e.checkout||0;
+          const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
+          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao)||'';
+          const retUSD=rec.retornoUSD;
+          const retBRL=rec.retornoBRL>0?rec.retornoBRL:retUSD*cotacao;
+          const lucro=retBRL-inv;
+          const roi=inv>0?retBRL/inv:0;
+          const cpc=cl>0?inv/cl:0;
+          const connect=cl>0?pv/cl:0;
+          const txCK=pv>0?ck/pv:0;
+          const cpa=rec.pp>0?inv/rec.pp:0;
+
+          totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;totLucro+=lucro;
+          totCl+=cl;totPV+=pv;totCK+=ck;totPP+=rec.pp;totOB+=rec.ob;
+
+          wsData.push([
+            fDate(e.data),
+            inv>0?50:'',
+            ticket?ticket:'',
+            inv,
+            retUSD||'',
+            retBRL||'',
+            retBRL>0?lucro:'',
+            retBRL>0&&inv>0?roi:'',
+            cl>0?cpc:'',
+            cl,
+            pv,
+            pv>0?connect:'',
+            ck,
+            pv>0?txCK:'',
+            rec.pp,
+            rec.ob,
+            rec.pp>0?cpa:''
+          ]);
+        });
+
+        // linha de totais
+        const totROI=totInv>0?totRetBRL/totInv:0;
+        const totCPC=totCl>0?totInv/totCl:0;
+        const totConnect=totCl>0?totPV/totCl:0;
+        const totTxCK=totPV>0?totCK/totPV:0;
+        const totCPA=totPP>0?totInv/totPP:0;
+
+        wsData.push([
+          '-','-','-',
+          totInv,
+          totRetUSD||'',
+          totRetBRL||'',
+          totRetBRL>0?totLucro:'',
+          totRetBRL>0&&totInv>0?totROI:'',
+          totCl>0?totCPC:'',
+          totCl,totPV,
+          totPV>0?totConnect:'',
+          totCK,
+          totPV>0?totTxCK:'',
+          totPP,totOB,
+          totPP>0?totCPA:''
+        ]);
+        wsData.push(['-']);
+      });
+
+      const sheetName=(camp.nome||'Campanha').slice(0,31).replace(/[\\\/\?\*\[\]]/g,'');
+      const ws=XLSX.utils.aoa_to_sheet(wsData);
+
+      // largura das colunas
+      ws['!cols']=[{wch:12},{wch:10},{wch:8},{wch:13},{wch:14},{wch:14},{wch:12},{wch:8},{wch:8},{wch:12},{wch:10},{wch:13},{wch:10},{wch:15},{wch:6},{wch:6},{wch:10}];
+
+      XLSX.utils.book_append_sheet(wb,ws,sheetName);
+    });
+  });
+
+  const fname=`Criativos_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb,fname);
+  toast('Planilha exportada');
+}
+
 /* ---------- settings ---------- */
 function openSettings(){
   openModal(`<div class="modal-head"><h2>Ajustes & <span class="accent">dados</span></h2><button class="close-x" onclick="closeModal()">✕</button></div>
-   <div class="fg full" style="margin-bottom:18px"><label>Cotação padrão do dólar (R$)</label><input type="number" step="0.01" id="s-cot" value="${DB.cotacaoPadrao}"><span class="hint">usada só em lançamentos manuais em dólar; vendas da Hotmart já vêm em reais</span></div>
+
+   <div class="form-section" style="border:none;padding:0;margin:0 0 14px">Conexão com o Meta</div>
+   <div class="fg full" style="margin-bottom:10px">
+     <label>Token de acesso do Meta</label>
+     <input type="password" id="s-token" value="${DB.metaToken||''}" placeholder="Cole aqui o token gerado no Graph API Explorer" autocomplete="off">
+     <span class="hint">O token expira a cada <b>60 dias</b>. Para renovar: acesse <b>developers.facebook.com</b>, abra o seu app, vá em <b>Ferramentas → Graph API Explorer</b>, selecione as permissões <b>ads_read</b> e <b>ads_management</b>, clique em <b>Gerar token de acesso</b> e depois em <b>Estender token</b> para ter 60 dias. Cole o resultado aqui e salve.</span>
+   </div>
+   <div class="fg full" style="margin-bottom:18px">
+     <label>ID da conta de anúncios (sem "act_")</label>
+     <input type="text" id="s-account" value="${DB.metaAccount||''}" placeholder="ex: 2213605429454449">
+     <span class="hint">Encontre em <b>business.facebook.com → Configurações → Contas de anúncios</b>. Use só os números, sem o prefixo act_.</span>
+   </div>
+
+   <div class="form-section" style="margin-bottom:14px">Geral</div>
+   <div class="fg full" style="margin-bottom:18px">
+     <label>Cotação padrão do dólar (R$)</label>
+     <input type="number" step="0.01" id="s-cot" value="${DB.cotacaoPadrao}">
+     <span class="hint">Padrão R$ 5,00 — ajustável também direto na aba Criativos</span>
+   </div>
+
    <div class="form-section" style="margin-bottom:14px">Backup</div>
-   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="exportData()">⬇ Exportar (.json)</button>
+   <div style="display:flex;gap:10px;flex-wrap:wrap">
+     <button class="btn btn-ghost" onclick="exportData()">⬇ Exportar (.json)</button>
      <label class="btn btn-ghost" style="cursor:pointer">⬆ Importar backup<input type="file" accept="application/json" style="display:none" onchange="importBackup(this)"></label>
-     <button class="btn btn-ghost btn-danger" onclick="wipe()">Limpar tudo</button></div>
-   <p class="hint" style="margin-top:14px;line-height:1.5">Os dados ficam salvos neste navegador. Exporte para guardar um backup ou levar para outro dispositivo.</p>
+     <button class="btn btn-ghost btn-danger" onclick="wipe()">Limpar tudo</button>
+   </div>
+   <p class="hint" style="margin-top:14px;line-height:1.5">Os dados ficam salvos na nuvem (Supabase). Exporte para um backup local.</p>
    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button><button class="btn btn-primary" id="s-save">Salvar</button></div>`);
-  md.querySelector('#s-save').onclick=()=>{const x=parseFloat(md.querySelector('#s-cot').value.replace(',','.'));if(!isNaN(x))DB.cotacaoPadrao=x;save();toast('Salvo');closeModal();};
+  md.querySelector('#s-save').onclick=()=>{
+    const tok=md.querySelector('#s-token').value.trim();
+    const acc=md.querySelector('#s-account').value.trim().replace('act_','');
+    const x=parseFloat(md.querySelector('#s-cot').value.replace(',','.'));
+    if(tok) DB.metaToken=tok;
+    if(acc) DB.metaAccount=acc;
+    if(!isNaN(x)){DB.cotacaoPadrao=x;document.getElementById('cr-cotacao').value=x.toFixed(2);}
+    save();toast('Salvo');closeModal();
+  };
 }
 function exportData(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='cardume-backup.json';a.click();URL.revokeObjectURL(u);}
 function importBackup(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.produtos)throw 0;DB=migrate(d);save();toast('Backup importado');closeModal();renderAll();}catch(e){toast('Arquivo inválido',false);}};r.readAsText(f);}
-function wipe(){confirmDel('Apagar TODOS os dados? Não tem volta.',()=>{DB={cotacaoPadrao:5,produtos:[]};save();nav={produtoId:null,campanhaId:null,anuncioId:null};toast('Tudo apagado');renderAll();});}
+function wipe(){confirmDel('Apagar TODOS os dados? Não tem volta.',()=>{DB={cotacaoPadrao:5,metaToken:DB.metaToken||'',metaAccount:DB.metaAccount||'',produtos:[]};save();nav={produtoId:null,campanhaId:null,anuncioId:null};toast('Tudo apagado');renderAll();});}
 
 /* ---------- utils ---------- */
 function esc(s){return(s+'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 let toastT;function toast(msg,ok=true){const t=document.getElementById('toast');t.innerHTML=(ok?'<span class="i">✓</span> ':'⚠ ')+msg;t.className='toast show'+(ok?' ok':' err');clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2600);}
-function renderAll(){refreshFilters();TAB==='painel'?renderPainel():renderEstrutura();}
+function renderAll(){refreshFilters();if(TAB==='painel')renderPainel();else if(TAB==='estrutura')renderEstrutura();else if(TAB==='criativos')renderCriativos();}
 
 /* ---------- bg ---------- */
 (function(){const cv=document.getElementById('bgcanvas'),ctx=cv.getContext('2d');let w,h,fish=[];

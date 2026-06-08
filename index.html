@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
@@ -830,7 +831,7 @@ function handleHotFile(file){
       doc:colIndex(H,[{exact:'documento'}]),
       email:colIndex(H,[{exact:'email'}]),
       recebido:colIndex(H,[{inc:'valor que voce recebeu convertido'}]),
-      recebidoUSD:colIndex(H,[{inc:'valor que voce recebeu em usd'},{inc:'valor recebido usd'},{inc:'recebido usd'}])
+      recebidoUSD:colIndex(H,[{inc:'faturamento liquido'},{inc:'valor que voce recebeu em usd'},{inc:'recebido usd'}])
     };
     if(ci.produto<0||ci.dataVenda<0||ci.recebido<0){status.innerHTML='<div class="note" style="border-color:var(--coral)">Não encontrei as colunas esperadas. Confirme que é o histórico de vendas da Hotmart.</div>';return;}
     const items=[];
@@ -943,58 +944,77 @@ function getCotacao(){
   return parseFloat(document.getElementById('cr-cotacao').value)||5;
 }
 
-// Busca receita da Hotmart por produto e data, distribuída por criativo se necessário
+// Distribui a receita da Hotmart pelos criativos de forma híbrida:
+// 1. Vendas que o Meta rastreou ficam no criativo que o Meta atribuiu
+// 2. Vendas que a Hotmart registrou mas o Meta não rastreou são distribuídas
+//    proporcionalmente ao investimento de cada criativo naquele dia
 function getCrReceita(prod, anuncioId, data, allAnuncios){
   const rv = prod.receita[data];
   if(!rv) return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
 
-  // total de vendas Meta neste dia para este produto
-  const anunciosNoDia = allAnuncios.filter(a=>{
-    return a.entradas.some(e=>e.data===data && (+e.investimento||0)>0);
-  });
-  const totalMetaSales = anunciosNoDia.reduce((s,a)=>{
-    const e=a.entradas.find(x=>x.data===data);
-    return s+(e?+e.metaSales||0:0);
-  },0);
-  const totalInvest = anunciosNoDia.reduce((s,a)=>{
-    const e=a.entradas.find(x=>x.data===data);
-    return s+(e?+e.investimento||0:0);
-  },0);
+  const hotPP   = rv.pp   || 0;
+  const hotOB   = rv.ob   || 0;
+  const hotBRL  = rv.retorno    || 0;
+  const hotUSD  = rv.retornoUSD || 0;
+  if(hotPP===0 && hotBRL===0) return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
 
-  if(totalMetaSales===0 && totalInvest===0){
-    return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
-  }
+  // criativos que rodaram neste dia (com investimento > 0)
+  const ativos = allAnuncios.filter(a=>
+    a.entradas.some(e=>e.data===data && (+e.investimento||0)>0)
+  );
+  if(!ativos.length) return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
 
-  const minhaSales = (()=>{const e=allAnuncios.find(a=>a.id===anuncioId)?.entradas.find(x=>x.data===data);return e?+e.metaSales||0:0;})();
-  const meuInvest = (()=>{const e=allAnuncios.find(a=>a.id===anuncioId)?.entradas.find(x=>x.data===data);return e?+e.investimento||0:0;})();
+  const meuAd = ativos.find(a=>a.id===anuncioId);
+  if(!meuAd) return {retornoUSD:0, retornoBRL:0, pp:0, ob:0, estimado:false};
 
-  // distribui pelas vendas Meta se houver; se não, distribui pelo investimento
-  let peso = 0;
-  let estimado = false;
-  if(totalMetaSales > 0){
-    peso = minhaSales / totalMetaSales;
+  const getEntry = (an)=>an.entradas.find(e=>e.data===data);
+  const meuEntry  = getEntry(meuAd);
+  const meuInvest = meuEntry ? +meuEntry.investimento||0 : 0;
+  const meuMeta   = meuEntry ? +meuEntry.metaSales||0   : 0;
+
+  const totalInvest  = ativos.reduce((s,a)=>{const e=getEntry(a);return s+(e?+e.investimento||0:0);},0);
+  const totalMeta    = ativos.reduce((s,a)=>{const e=getEntry(a);return s+(e?+e.metaSales||0:0);},0);
+
+  // vendas confirmadas pelo Meta vs total Hotmart
+  const vendasConfirmadas = Math.min(totalMeta, hotPP); // Meta pode exagerar, limita ao Hotmart
+  const vendaOrfas        = Math.max(hotPP - vendasConfirmadas, 0); // Hotmart > Meta = órfãs
+  let estimado = vendaOrfas > 0;
+
+  // ----- parte 1: vendas rastreadas pelo Meta -----
+  // o peso deste criativo na parte rastreada = suas vendas Meta / total Meta
+  const pesoMeta = totalMeta > 0 ? meuMeta / totalMeta : 0;
+  const ppConf   = vendasConfirmadas * pesoMeta;
+  const brlConf  = hotBRL * (vendasConfirmadas / hotPP) * pesoMeta;
+  const usdConf  = hotUSD * (vendasConfirmadas / hotPP) * pesoMeta;
+
+  // ----- parte 2: vendas órfãs distribuídas por investimento -----
+  const pesoInvest = totalInvest > 0 ? meuInvest / totalInvest : 1/ativos.length;
+  const ppOrfa     = vendaOrfas * pesoInvest;
+  const brlOrfa    = hotBRL * (vendaOrfas / hotPP) * pesoInvest;
+  const usdOrfa    = hotUSD * (vendaOrfas / hotPP) * pesoInvest;
+
+  // se Meta não rastreou NADA mas Hotmart registrou, tudo vira órfã por investimento
+  let ppFinal, brlFinal, usdFinal;
+  if(totalMeta === 0){
+    ppFinal  = hotPP  * pesoInvest;
+    brlFinal = hotBRL * pesoInvest;
+    usdFinal = hotUSD * pesoInvest;
+    estimado = true;
   } else {
-    peso = totalInvest > 0 ? meuInvest / totalInvest : 1 / Math.max(anunciosNoDia.length, 1);
-    estimado = true;
+    ppFinal  = ppConf  + ppOrfa;
+    brlFinal = brlConf + brlOrfa;
+    usdFinal = usdConf + usdOrfa;
   }
 
-  const totalHotmartPP = rv.pp || 0;
-  const totalHotmartOB = rv.ob || 0;
-  const totalHotmartBRL = rv.retorno || 0;
-  const totalHotmartUSD = rv.retornoUSD || 0;
-
-  // diferença: vendas Hotmart vs Meta
-  const totalMetaConf = totalMetaSales;
-  if(totalHotmartPP > totalMetaConf && totalMetaSales > 0){
-    // há vendas não rastreadas: distribuição proporcional
-    estimado = true;
-  }
+  // OB: distribui na mesma proporção que PP
+  const pesoFinal = hotPP > 0 ? ppFinal / hotPP : 0;
+  const obFinal   = hotOB * pesoFinal;
 
   return {
-    retornoUSD: totalHotmartUSD * peso,
-    retornoBRL: totalHotmartBRL * peso,
-    pp: Math.round(totalHotmartPP * peso),
-    ob: Math.round(totalHotmartOB * peso),
+    retornoUSD: usdFinal,
+    retornoBRL: brlFinal,
+    pp:  Math.round(ppFinal),
+    ob:  Math.round(obFinal),
     estimado
   };
 }
@@ -1015,11 +1035,20 @@ function inferTicket(prod, anuncioId, data, allAnuncios, cotacao){
   return null;
 }
 
-function snapTicket(avg){
-  const tiers=[6.9,9.9,12.9,14.9];
-  let best=tiers[0], bestDiff=Math.abs(avg-tiers[0]);
-  for(const t of tiers){const d=Math.abs(avg-t);if(d<bestDiff){bestDiff=d;best=t;}}
-  return best;
+function snapTicket(bd){
+  // bd = valor em dólar recebido por venda (Faturamento líquido, vem um pouco abaixo do ticket cheio)
+  // Faixas: 6.x->6.90 | 7.x->7.90 | 8.x e 9.x->9.90 | 10-12.x->12.90 | 13-14.x->14.90
+  if(!bd||bd<=0)return null;
+  const faixas=[
+    [6.0,6.99,6.90],
+    [7.0,7.99,7.90],
+    [8.0,9.99,9.90],
+    [10.0,12.99,12.90],
+    [13.0,14.99,14.90]
+  ];
+  for(const [lo,hi,t] of faixas){if(bd>=lo&&bd<=hi)return t;}
+  // fora das faixas conhecidas (ex: order bumps): arredonda pro .90 do piso
+  return Math.floor(bd)+0.90;
 }
 
 function renderCriativos(){
@@ -1256,113 +1285,178 @@ async function fetchMetaCriativos(){
 }
 
 /* ---------- EXPORTAR PLANILHA (idêntico à planilha do mentor) ---------- */
-function exportCriativos(){
+async function exportCriativos(){
   const [from,to]=getCrRange();
   const cotacao=getCotacao();
   const prods=DB.produtos.filter(p=>!SEL_CR_PROD||SEL_CR_PROD.has(p.id));
   if(!prods.length){toast('Nenhum dado para exportar',false);return;}
 
-  const wb=XLSX.utils.book_new();
+  // Cores da planilha original do mentor
+  const C_LARANJA='FFFF6500', C_VERDE='FF92D050', C_CINZA='FF7F7F7F',
+        C_CREME='FFFFF2CC', C_CINZACLARO='FFD8D8D8', C_HEADER='FFFF6500',
+        C_BRANCO='FFFFFFFF', C_PRETO='FF000000';
+
+  // Formatos numéricos idênticos à planilha
+  const FMT_BRL='"R$"\\ #,##0.00';
+  const FMT_USD='[$$-409]\\ #,##0.00';
+  const FMT_DEC='#,##0.00';
+  const FMT_PCT='0.00%';
+  const FMT_INT='#,##0';
+
+  const wb=new ExcelJS.Workbook();
+  wb.creator='Cardume Meta Ads';
+
+  const fill=(hex)=>({type:'pattern',pattern:'solid',fgColor:{argb:hex}});
+  const border={top:{style:'thin',color:{argb:'FFBFBFBF'}},left:{style:'thin',color:{argb:'FFBFBFBF'}},bottom:{style:'thin',color:{argb:'FFBFBFBF'}},right:{style:'thin',color:{argb:'FFBFBFBF'}}};
+  const center={horizontal:'center',vertical:'center'};
+
+  const HEADERS=['Data','Orçamento','Ticket','Investimento','Retorno - Dolar','Retorno - Real','Lucro','ROI','CPC','Clique no link','PageView','Connect rate','Checkout','Taxa de checkout','PP','OB','CPA'];
+  // mapeamento de formato por coluna (1-indexed dentro do bloco de 17 colunas, começando em B=2)
+  const COLFMT=[null,FMT_BRL,FMT_USD,FMT_BRL,FMT_USD,FMT_BRL,FMT_BRL,FMT_DEC,FMT_BRL,FMT_INT,FMT_INT,FMT_PCT,FMT_INT,FMT_PCT,FMT_INT,FMT_INT,FMT_BRL];
 
   prods.forEach(prod=>{
     prod.campanhas.forEach(camp=>{
       const anunciosFilt=camp.anuncios.filter(an=>an.entradas.some(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques)));
       if(!anunciosFilt.length) return;
 
-      const wsData=[];
-      // linha da cotação
-      wsData.push(['Cotação do dolar:','','',cotacao,'','Investimento','','','Retorno bruto','','','LUCRO','','','ROI','']);
-      wsData.push([]);
+      const sheetName=(camp.nome||'Campanha').slice(0,31).replace(/[\\\/\?\*\[\]:]/g,'').trim()||'Campanha';
+      const ws=wb.addWorksheet(sheetName,{views:[{showGridLines:false}]});
 
-      anunciosFilt.forEach((an,idx)=>{
+      // larguras (col A vazia estreita + 17 colunas de dados B..R)
+      ws.getColumn(1).width=2.5;
+      const widths=[13,11,9,14,15,15,13,8,10,13,11,14,11,16,7,7,11];
+      widths.forEach((w,i)=>ws.getColumn(i+2).width=w);
+
+      // ===== Totais gerais do topo (somando todos os criativos da campanha) =====
+      let gInv=0,gRetBRL=0;
+      anunciosFilt.forEach(an=>{
+        an.entradas.filter(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques)).forEach(e=>{
+          const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
+          const inv=+e.investimento||0;
+          gInv+=inv;
+          gRetBRL+=(rec.retornoBRL>0?rec.retornoBRL:rec.retornoUSD*cotacao);
+        });
+      });
+      const gLucro=gRetBRL-gInv, gROI=gInv>0?gRetBRL/gInv:0;
+
+      // ===== Linha 2: cartões de resumo (Cotação | Investimento | Retorno bruto | LUCRO | ROI) =====
+      let row=ws.getRow(2);
+      const setCard=(col,label,value,valFmt,labelFill,valFill)=>{
+        const cL=ws.getCell(row.number,col), cV=ws.getCell(row.number,col+1);
+        cL.value=label; cL.fill=fill(labelFill); cL.font={bold:true,color:{argb:C_BRANCO},name:'Arial',size:11}; cL.alignment=center; cL.border=border;
+        cV.value=value; cV.numFmt=valFmt; cV.fill=fill(valFill); cV.font={bold:true,color:{argb:C_BRANCO},name:'Arial',size:12}; cV.alignment=center; cV.border=border;
+      };
+      setCard(2,'Cotação do dólar:',cotacao,FMT_BRL,C_LARANJA,C_VERDE);
+      setCard(6,'Investimento',gInv,FMT_BRL,C_LARANJA,C_VERDE);
+      setCard(9,'Retorno bruto',gRetBRL,FMT_BRL,C_LARANJA,C_VERDE);
+      setCard(12,'LUCRO',gLucro,FMT_BRL,C_LARANJA,C_VERDE);
+      setCard(16,'ROI',gROI,FMT_DEC,C_LARANJA,C_VERDE);
+      row.height=22;
+
+      let r=4; // começa os blocos de criativo na linha 4
+
+      anunciosFilt.forEach((an)=>{
         const entradas=an.entradas
           .filter(e=>(!from||e.data>=from)&&(!to||e.data<=to)&&(+e.investimento||+e.cliques))
           .sort((a,b)=>a.data.localeCompare(b.data));
         if(!entradas.length) return;
 
-        // header do criativo
-        wsData.push([`CRIATIVO ${an.nome}`]);
-        wsData.push(['Data','Orçamento','Ticket','Investimento','Retorno - Dolar','Retorno - Real','Lucro','ROI','CPC','Clique no link','PageView','Connect rate','Checkout','Taxa de checkout','PP','OB','CPA']);
+        // ----- Banner CRIATIVO (merge B:R, cinza) -----
+        ws.mergeCells(r,2,r,18);
+        const banner=ws.getCell(r,2);
+        banner.value=`CRIATIVO ${an.nome}`;
+        banner.fill=fill(C_CINZA);
+        banner.font={bold:true,color:{argb:C_BRANCO},name:'Arial',size:16};
+        banner.alignment=center;
+        ws.getRow(r).height=26;
+        r++;
+
+        // ----- Cabeçalho da tabela (laranja, texto branco) -----
+        const hr=ws.getRow(r);
+        HEADERS.forEach((h,i)=>{
+          const c=ws.getCell(r,i+2);
+          c.value=h; c.fill=fill(C_HEADER); c.font={bold:true,color:{argb:C_BRANCO},name:'Arial',size:10}; c.alignment=center; c.border=border;
+        });
+        hr.height=20;
+        r++;
 
         let totInv=0,totRetUSD=0,totRetBRL=0,totLucro=0,totCl=0,totPV=0,totCK=0,totPP=0,totOB=0;
 
         entradas.forEach(e=>{
-          const inv=+e.investimento||0;
-          const cl=+e.cliques||0;
-          const pv=+e.pageview||0;
-          const ck=+e.checkout||0;
+          const inv=+e.investimento||0, cl=+e.cliques||0, pv=+e.pageview||0, ck=+e.checkout||0;
           const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
-          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao)||'';
+          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao);
           const retUSD=rec.retornoUSD;
           const retBRL=rec.retornoBRL>0?rec.retornoBRL:retUSD*cotacao;
-          const lucro=retBRL-inv;
-          const roi=inv>0?retBRL/inv:0;
-          const cpc=cl>0?inv/cl:0;
-          const connect=cl>0?pv/cl:0;
-          const txCK=pv>0?ck/pv:0;
-          const cpa=rec.pp>0?inv/rec.pp:0;
+          const lucro=retBRL-inv, roi=inv>0?retBRL/inv:0, cpc=cl>0?inv/cl:0;
+          const connect=cl>0?pv/cl:0, txCK=pv>0?ck/pv:0, cpa=rec.pp>0?inv/rec.pp:0;
 
           totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;totLucro+=lucro;
           totCl+=cl;totPV+=pv;totCK+=ck;totPP+=rec.pp;totOB+=rec.ob;
 
-          wsData.push([
-            fDate(e.data),
-            inv>0?50:'',
-            ticket?ticket:'',
+          const vals=[
+            new Date(e.data+'T00:00:00'),
+            inv>0?50:null,
+            ticket||null,
             inv,
-            retUSD||'',
-            retBRL||'',
-            retBRL>0?lucro:'',
-            retBRL>0&&inv>0?roi:'',
-            cl>0?cpc:'',
-            cl,
-            pv,
-            pv>0?connect:'',
-            ck,
-            pv>0?txCK:'',
-            rec.pp,
-            rec.ob,
-            rec.pp>0?cpa:''
-          ]);
+            retUSD||null,
+            retBRL||null,
+            retBRL>0?lucro:null,
+            (retBRL>0&&inv>0)?roi:null,
+            cl>0?cpc:null,
+            cl||null,
+            pv||null,
+            pv>0?connect:null,
+            ck||null,
+            pv>0?txCK:null,
+            rec.pp||null,
+            rec.ob||0,
+            rec.pp>0?cpa:null
+          ];
+          vals.forEach((v,i)=>{
+            const c=ws.getCell(r,i+2);
+            c.value=v;
+            if(i===0)c.numFmt='dd/mm/yyyy';
+            else if(COLFMT[i])c.numFmt=COLFMT[i];
+            c.font={name:'Arial',size:10};
+            c.alignment=center;
+            c.border=border;
+            // fundos especiais: Retorno Real (col G=6 -> i=5) creme, ROI (col I=8 -> i=7) cinza claro, Connect (col M=12 -> i=11) creme, Tx checkout (col O=14 -> i=13) creme
+            if(i===5)c.fill=fill(C_CREME);
+            if(i===7)c.fill=fill(C_CINZACLARO);
+            if(i===11)c.fill=fill(C_CREME);
+            if(i===13)c.fill=fill(C_CREME);
+          });
+          r++;
         });
 
-        // linha de totais
-        const totROI=totInv>0?totRetBRL/totInv:0;
-        const totCPC=totCl>0?totInv/totCl:0;
-        const totConnect=totCl>0?totPV/totCl:0;
-        const totTxCK=totPV>0?totCK/totPV:0;
-        const totCPA=totPP>0?totInv/totPP:0;
-
-        wsData.push([
-          '-','-','-',
-          totInv,
-          totRetUSD||'',
-          totRetBRL||'',
-          totRetBRL>0?totLucro:'',
-          totRetBRL>0&&totInv>0?totROI:'',
-          totCl>0?totCPC:'',
-          totCl,totPV,
-          totPV>0?totConnect:'',
-          totCK,
-          totPV>0?totTxCK:'',
-          totPP,totOB,
-          totPP>0?totCPA:''
-        ]);
-        wsData.push(['-']);
+        // ----- Linha de totais (laranja, negrito) -----
+        const totROI=totInv>0?totRetBRL/totInv:0, totCPC=totCl>0?totInv/totCl:0;
+        const totConnect=totCl>0?totPV/totCl:0, totTxCK=totPV>0?totCK/totPV:0, totCPA=totPP>0?totInv/totPP:0;
+        const totVals=['-','-','-',totInv,totRetUSD||null,totRetBRL||null,totRetBRL>0?totLucro:null,(totRetBRL>0&&totInv>0)?totROI:null,totCl>0?totCPC:null,totCl,totPV,totPV>0?totConnect:null,totCK,totPV>0?totTxCK:null,totPP,totOB,totPP>0?totCPA:null];
+        totVals.forEach((v,i)=>{
+          const c=ws.getCell(r,i+2);
+          c.value=v;
+          if(i>0&&COLFMT[i]&&typeof v==='number')c.numFmt=COLFMT[i];
+          c.fill=fill(C_LARANJA);
+          c.font={bold:true,color:{argb:C_BRANCO},name:'Arial',size:10};
+          c.alignment=center;
+          c.border=border;
+        });
+        r++;
+        r++; // linha em branco entre criativos
       });
-
-      const sheetName=(camp.nome||'Campanha').slice(0,31).replace(/[\\\/\?\*\[\]]/g,'');
-      const ws=XLSX.utils.aoa_to_sheet(wsData);
-
-      // largura das colunas
-      ws['!cols']=[{wch:12},{wch:10},{wch:8},{wch:13},{wch:14},{wch:14},{wch:12},{wch:8},{wch:8},{wch:12},{wch:10},{wch:13},{wch:10},{wch:15},{wch:6},{wch:6},{wch:10}];
-
-      XLSX.utils.book_append_sheet(wb,ws,sheetName);
     });
   });
 
-  const fname=`Criativos_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb,fname);
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Criativos_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
   toast('Planilha exportada');
 }
 

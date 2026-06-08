@@ -370,6 +370,7 @@ function save(){
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 
 /* ---------- format ---------- */
+const round2=v=>Math.round((v||0)*100)/100;
 const fBRL=v=>isFinite(v)?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'R$ 0,00';
 const fUSD=v=>isFinite(v)?'$ '+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'$ 0.00';
 const fPct=v=>isFinite(v)?(v*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—';
@@ -1104,48 +1105,52 @@ function renderCriativos(){
           const ck=+e.checkout||0;
 
           const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
-          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao);
-          const retUSD=rec.retornoUSD;
-          const retBRL=rec.retornoBRL>0?rec.retornoBRL:retUSD*cotacao;
-          const lucro=retBRL-inv;
-          const roi=inv>0?retBRL/inv:0;
-          const cpc=cl>0?inv/cl:0;
-          const connect=cl>0?pv/cl:0;
-          const txCK=pv>0?ck/pv:0;
-          const cpa=rec.pp>0?inv/rec.pp:0;
+          // só mostra ticket e retorno se houve venda real (pp>0)
+          const temVenda=rec.pp>0||rec.retornoBRL>0||rec.retornoUSD>0;
+          const ticket=temVenda?inferTicket(prod,an.id,e.data,camp.anuncios,cotacao):null;
+          const retUSD=temVenda?round2(rec.retornoUSD):0;
+          const retBRL=temVenda?round2(rec.retornoBRL>0?rec.retornoBRL:rec.retornoUSD*cotacao):0;
+          const lucro=retBRL>0?round2(retBRL-inv):0;
+          const roi=retBRL>0&&inv>0?round2(retBRL/inv):0;
+          const cpc=cl>0?round2(inv/cl):0;
+          const connect=cl>0?round2(pv/cl):0;
+          const txCK=pv>0?round2(ck/pv):0;
+          const cpa=rec.pp>0?round2(inv/rec.pp):0;
 
-          totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;totLucro+=lucro;
+          totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;
+          totLucro+=lucro;
           totCl+=cl;totPV+=pv;totCK+=ck;totPP+=rec.pp;totOB+=rec.ob;
 
           const estTag=rec.estimado?'<span class="est-tag">est.</span>':'';
 
           rowsHtml+=`<tr>
             <td>${fDate(e.data)}</td>
-            <td>${fBRL(inv>0?50:0)}</td>
+            <td>${inv>0?'R$ 50,00':'—'}</td>
             <td>${ticket?'$ '+ticket.toFixed(2):'—'}</td>
             <td>${fBRL(inv)}</td>
-            <td>${retUSD>0?fUSD(retUSD):'—'}${estTag}</td>
-            <td>${retBRL>0?fBRL(retBRL):'—'}${estTag}</td>
+            <td>${retUSD>0?fUSD(retUSD)+''+estTag:'—'}</td>
+            <td>${retBRL>0?fBRL(retBRL)+''+estTag:'—'}</td>
             <td class="${lucro>0?'pos':lucro<0?'neg':''}">${retBRL>0?fBRL(lucro):'—'}</td>
-            <td>${retBRL>0&&inv>0?fROI(roi):'—'}</td>
+            <td>${roi>0?fROI(roi):'—'}</td>
             <td>${cl>0?fBRL(cpc):'—'}</td>
-            <td>${fNum(cl)}</td>
-            <td>${fNum(pv)}</td>
-            <td>${pv>0?fPct(connect):'—'}</td>
-            <td>${fNum(ck)}</td>
-            <td>${pv>0?fPct(txCK):'—'}</td>
-            <td>${fNum(rec.pp)}</td>
-            <td>${fNum(rec.ob)}</td>
-            <td>${rec.pp>0?fBRL(cpa):'—'}</td>
+            <td>${cl>0?fNum(cl):'—'}</td>
+            <td>${pv>0?fNum(pv):'—'}</td>
+            <td>${connect>0?fPct(connect):'—'}</td>
+            <td>${ck>0?fNum(ck):'—'}</td>
+            <td>${txCK>0?fPct(txCK):'—'}</td>
+            <td>${rec.pp>0?fNum(rec.pp):'—'}</td>
+            <td>${rec.ob>0?fNum(rec.ob):'—'}</td>
+            <td>${cpa>0?fBRL(cpa):'—'}</td>
           </tr>`;
         });
 
         // linha de totais
-        const totROI=totInv>0?totRetBRL/totInv:0;
-        const totCPC=totCl>0?totInv/totCl:0;
-        const totConnect=totCl>0?totPV/totCl:0;
-        const totTxCK=totPV>0?totCK/totPV:0;
-        const totCPA=totPP>0?totInv/totPP:0;
+        const totROI=totInv>0&&totRetBRL>0?round2(totRetBRL/totInv):0;
+        const totCPC=totCl>0?round2(totInv/totCl):0;
+        const totConnect=totCl>0?round2(totPV/totCl):0;
+        const totTxCK=totPV>0?round2(totCK/totPV):0;
+        const totCPA=totPP>0?round2(totInv/totPP):0;
+        const totLucroFinal=round2(totLucro);
 
         rowsHtml+=`<tr class="row-sub">
           <td>Total</td>
@@ -1153,17 +1158,17 @@ function renderCriativos(){
           <td>${fBRL(totInv)}</td>
           <td>${totRetUSD>0?fUSD(totRetUSD):'—'}</td>
           <td>${totRetBRL>0?fBRL(totRetBRL):'—'}</td>
-          <td class="${totLucro>0?'pos':totLucro<0?'neg':''}">${totRetBRL>0?fBRL(totLucro):'—'}</td>
-          <td>${totRetBRL>0&&totInv>0?fROI(totROI):'—'}</td>
+          <td class="${totLucroFinal>0?'pos':totLucroFinal<0?'neg':''}">${totRetBRL>0?fBRL(totLucroFinal):'—'}</td>
+          <td>${totROI>0?fROI(totROI):'—'}</td>
           <td>${totCl>0?fBRL(totCPC):'—'}</td>
-          <td>${fNum(totCl)}</td>
-          <td>${fNum(totPV)}</td>
-          <td>${totPV>0?fPct(totConnect):'—'}</td>
-          <td>${fNum(totCK)}</td>
-          <td>${totPV>0?fPct(totTxCK):'—'}</td>
-          <td>${fNum(totPP)}</td>
-          <td>${fNum(totOB)}</td>
-          <td>${totPP>0?fBRL(totCPA):'—'}</td>
+          <td>${totCl>0?fNum(totCl):'—'}</td>
+          <td>${totPV>0?fNum(totPV):'—'}</td>
+          <td>${totConnect>0?fPct(totConnect):'—'}</td>
+          <td>${totCK>0?fNum(totCK):'—'}</td>
+          <td>${totTxCK>0?fPct(totTxCK):'—'}</td>
+          <td>${totPP>0?fNum(totPP):'—'}</td>
+          <td>${totOB>0?fNum(totOB):'—'}</td>
+          <td>${totCPA>0?fBRL(totCPA):'—'}</td>
         </tr>`;
 
         html+=`<div class="cr-section">
@@ -1385,13 +1390,19 @@ async function exportCriativos(){
         entradas.forEach(e=>{
           const inv=+e.investimento||0, cl=+e.cliques||0, pv=+e.pageview||0, ck=+e.checkout||0;
           const rec=getCrReceita(prod,an.id,e.data,camp.anuncios);
-          const ticket=inferTicket(prod,an.id,e.data,camp.anuncios,cotacao);
-          const retUSD=rec.retornoUSD;
-          const retBRL=rec.retornoBRL>0?rec.retornoBRL:retUSD*cotacao;
-          const lucro=retBRL-inv, roi=inv>0?retBRL/inv:0, cpc=cl>0?inv/cl:0;
-          const connect=cl>0?pv/cl:0, txCK=pv>0?ck/pv:0, cpa=rec.pp>0?inv/rec.pp:0;
+          const temVenda=rec.pp>0||rec.retornoBRL>0||rec.retornoUSD>0;
+          const ticket=temVenda?inferTicket(prod,an.id,e.data,camp.anuncios,cotacao):null;
+          const retUSD=temVenda?round2(rec.retornoUSD):null;
+          const retBRL=temVenda?round2(rec.retornoBRL>0?rec.retornoBRL:rec.retornoUSD*cotacao):null;
+          const lucro=retBRL>0?round2(retBRL-inv):null;
+          const roi=retBRL>0&&inv>0?round2(retBRL/inv):null;
+          const cpc=cl>0?round2(inv/cl):null;
+          const connect=cl>0?round2(pv/cl):null;
+          const txCK=pv>0?round2(ck/pv):null;
+          const cpa=rec.pp>0?round2(inv/rec.pp):null;
 
-          totInv+=inv;totRetUSD+=retUSD;totRetBRL+=retBRL;totLucro+=lucro;
+          totInv+=inv;totRetUSD+=retUSD||0;totRetBRL+=retBRL||0;
+          totLucro+=lucro||0;
           totCl+=cl;totPV+=pv;totCK+=ck;totPP+=rec.pp;totOB+=rec.ob;
 
           const vals=[
@@ -1399,19 +1410,19 @@ async function exportCriativos(){
             inv>0?50:null,
             ticket||null,
             inv,
-            retUSD||null,
-            retBRL||null,
-            retBRL>0?lucro:null,
-            (retBRL>0&&inv>0)?roi:null,
-            cl>0?cpc:null,
+            retUSD,
+            retBRL,
+            lucro,
+            roi,
+            cpc,
             cl||null,
             pv||null,
-            pv>0?connect:null,
+            connect,
             ck||null,
-            pv>0?txCK:null,
+            txCK,
             rec.pp||null,
-            rec.ob||0,
-            rec.pp>0?cpa:null
+            rec.ob>0?rec.ob:null,
+            cpa
           ];
           vals.forEach((v,i)=>{
             const c=ws.getCell(r,i+2);
@@ -1431,9 +1442,13 @@ async function exportCriativos(){
         });
 
         // ----- Linha de totais (laranja, negrito) -----
-        const totROI=totInv>0?totRetBRL/totInv:0, totCPC=totCl>0?totInv/totCl:0;
-        const totConnect=totCl>0?totPV/totCl:0, totTxCK=totPV>0?totCK/totPV:0, totCPA=totPP>0?totInv/totPP:0;
-        const totVals=['-','-','-',totInv,totRetUSD||null,totRetBRL||null,totRetBRL>0?totLucro:null,(totRetBRL>0&&totInv>0)?totROI:null,totCl>0?totCPC:null,totCl,totPV,totPV>0?totConnect:null,totCK,totPV>0?totTxCK:null,totPP,totOB,totPP>0?totCPA:null];
+        const totROI=totInv>0&&totRetBRL>0?round2(totRetBRL/totInv):null;
+        const totCPC=totCl>0?round2(totInv/totCl):null;
+        const totConnect=totCl>0?round2(totPV/totCl):null;
+        const totTxCK=totPV>0?round2(totCK/totPV):null;
+        const totCPA=totPP>0?round2(totInv/totPP):null;
+        const totLucroR=totRetBRL>0?round2(totLucro):null;
+        const totVals=['-','-','-',totInv,totRetUSD>0?round2(totRetUSD):null,totRetBRL>0?round2(totRetBRL):null,totLucroR,totROI,totCPC,totCl||null,totPV||null,totConnect,totCK||null,totTxCK,totPP||null,totOB>0?totOB:null,totCPA];
         totVals.forEach((v,i)=>{
           const c=ws.getCell(r,i+2);
           c.value=v;
